@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, Clock, CheckCircle, XCircle } from 'lucide-react';
+import ContractForm from '@/components/ContractForm';
 
 interface DocumentUpload {
   id: string;
@@ -18,11 +19,12 @@ interface DocumentUpload {
 }
 
 export default function ApplicantDashboard() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const [uploads, setUploads] = useState<DocumentUpload[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [contractGenerated, setContractGenerated] = useState(false);
 
   const fetchUploads = useCallback(async () => {
     if (!user) return;
@@ -68,13 +70,16 @@ export default function ApplicantDashboard() {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !user) return;
+    if (!selectedFile || !user || !profile) return;
 
     setIsUploading(true);
 
     try {
-      // Generate stored filename: applicant-{userId}_contract.pdf
-      const storedFilename = `applicant-${user.id.substring(0, 8)}_contract.pdf`;
+      // Generate stored filename: LASTNAME_FIRSTNAME_contract.pdf
+      const nameParts = profile.full_name.trim().split(' ');
+      const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1].toUpperCase() : nameParts[0].toUpperCase();
+      const firstName = nameParts[0].toUpperCase();
+      const storedFilename = `${lastName}_${firstName}_contract.pdf`;
       const storagePath = `${user.id}/${storedFilename}`;
 
       // Upload to storage
@@ -103,6 +108,7 @@ export default function ApplicantDashboard() {
 
       toast({ title: 'Document uploaded successfully!' });
       setSelectedFile(null);
+      setContractGenerated(false);
       fetchUploads();
     } catch (error: any) {
       toast({
@@ -142,17 +148,23 @@ export default function ApplicantDashboard() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-heading font-bold text-foreground">Applicant Dashboard</h2>
-        <p className="text-muted-foreground">Upload your signed contract documents</p>
+        <p className="text-muted-foreground">Fill, sign, and upload your contract</p>
       </div>
 
+      {/* Contract Signing Section */}
+      <ContractForm onContractGenerated={() => setContractGenerated(true)} />
+
+      {/* Upload Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="w-5 h-5" />
-            Upload Contract
+            Upload Your Signed Contract
           </CardTitle>
           <CardDescription>
-            Upload your signed contract as a PDF. The file will be renamed automatically.
+            {contractGenerated 
+              ? 'Your contract has been generated. Upload the signed PDF below.'
+              : 'After signing your contract, upload it here for review.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -181,6 +193,7 @@ export default function ApplicantDashboard() {
         </CardContent>
       </Card>
 
+      {/* My Uploads Section */}
       <Card>
         <CardHeader>
           <CardTitle>My Uploads</CardTitle>

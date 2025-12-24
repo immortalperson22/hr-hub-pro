@@ -1,96 +1,91 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Building2, LogOut, User, FileText, Users } from 'lucide-react';
+import DarkModeToggle from '@/components/DarkModeToggle';
+import { LogOut, User, Shield, Briefcase } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { user, role, signOut } = useAuth();
+  const { user, role, signOut, loading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth');
   };
 
-  const getRoleBadgeColor = () => {
+  const getRoleIcon = () => {
     switch (role) {
       case 'admin':
-        return 'bg-primary text-primary-foreground';
+        return <Shield className="w-4 h-4" />;
       case 'employee':
-        return 'bg-accent text-accent-foreground';
+        return <Briefcase className="w-4 h-4" />;
       default:
-        return 'bg-secondary text-secondary-foreground';
+        return <User className="w-4 h-4" />;
     }
   };
 
+  const getRoleBadgeClass = () => {
+    switch (role) {
+      case 'admin':
+        return 'bg-destructive/10 text-destructive border-destructive/20';
+      case 'employee':
+        return 'bg-primary/10 text-primary border-primary/20';
+      default:
+        return 'bg-warning/10 text-warning border-warning/20';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse text-foreground">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
+      <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-lg font-heading font-semibold text-foreground">HR Portal</h1>
-              <p className="text-xs text-muted-foreground">Human Resources Management</p>
-            </div>
+            <h1 className="text-xl font-heading font-bold text-foreground">HR Portal</h1>
+            {role && (
+              <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getRoleBadgeClass()}`}>
+                {getRoleIcon()}
+                {role}
+              </span>
+            )}
           </div>
-
-          <nav className="hidden md:flex items-center gap-6">
-            {role === 'applicant' && (
-              <button 
-                onClick={() => navigate('/dashboard')}
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-              >
-                <FileText className="w-4 h-4" />
-                My Documents
-              </button>
-            )}
-            {role === 'admin' && (
-              <>
-                <button 
-                  onClick={() => navigate('/dashboard')}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-                >
-                  <FileText className="w-4 h-4" />
-                  Pending Uploads
-                </button>
-                <button 
-                  onClick={() => navigate('/users')}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-                >
-                  <Users className="w-4 h-4" />
-                  Manage Users
-                </button>
-              </>
-            )}
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                <User className="w-4 h-4 text-muted-foreground" />
-              </div>
-              <div className="hidden sm:block">
-                <p className="text-sm font-medium text-foreground">{user?.email}</p>
-                <span className={`inline-block text-xs px-2 py-0.5 rounded-full capitalize ${getRoleBadgeColor()}`}>
-                  {role}
-                </span>
-              </div>
-            </div>
-            <Button variant="ghost" size="icon" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <DarkModeToggle />
+            <span className="text-sm text-muted-foreground hidden sm:block">
+              {user?.email}
+            </span>
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
             </Button>
           </div>
         </div>
       </header>
-
       <main className="container mx-auto px-4 py-8">
         {children}
       </main>
