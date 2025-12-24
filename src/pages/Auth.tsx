@@ -1,204 +1,223 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Building2, Mail, Lock, User, Phone } from 'lucide-react';
-import { z } from 'zod';
-
-const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-const signupSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  fullName: z.string().min(2, 'Full name is required'),
-  phone: z.string().optional(),
-});
+import { Moon, Sun } from 'lucide-react';
 
 export default function Auth() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isActive, setIsActive] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    if (!isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    try {
-      if (isLogin) {
-        const validation = loginSchema.safeParse({ email, password });
-        if (!validation.success) {
-          toast({
-            title: 'Validation Error',
-            description: validation.error.errors[0].message,
-            variant: 'destructive',
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        const { error } = await signIn(email, password);
-        if (error) {
-          toast({
-            title: 'Login Failed',
-            description: error.message,
-            variant: 'destructive',
-          });
-        } else {
-          toast({ title: 'Welcome back!' });
-          navigate('/dashboard');
-        }
-      } else {
-        const validation = signupSchema.safeParse({ email, password, fullName, phone });
-        if (!validation.success) {
-          toast({
-            title: 'Validation Error',
-            description: validation.error.errors[0].message,
-            variant: 'destructive',
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        const { error } = await signUp(email, password, fullName, phone);
-        if (error) {
-          toast({
-            title: 'Sign Up Failed',
-            description: error.message,
-            variant: 'destructive',
-          });
-        } else {
-          toast({ title: 'Account created successfully!' });
-          navigate('/dashboard');
-        }
-      }
-    } catch (err) {
+    const result = await signIn(email, password);
+    if (result.error) {
       toast({
-        title: 'Error',
-        description: 'An unexpected error occurred',
+        title: 'Sign in failed',
+        description: result.error.message,
         variant: 'destructive',
       });
+    } else {
+      navigate('/dashboard');
     }
+    setIsLoading(false);
+  };
 
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      toast({
+        title: 'Name required',
+        description: 'Please enter your full name.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsLoading(true);
+    const result = await signUp(email, password, name);
+    if (result.error) {
+      toast({
+        title: 'Sign up failed',
+        description: result.error.message,
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Account created!',
+        description: 'You can now sign in.',
+      });
+      setIsActive(false);
+      setName('');
+    }
     setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary mb-4">
-            <Building2 className="w-8 h-8 text-primary-foreground" />
-          </div>
-          <h1 className="text-2xl font-heading font-bold text-foreground">HR Portal</h1>
-          <p className="text-muted-foreground mt-1">Human Resources Management System</p>
+    <div className="auth-page-body">
+      {/* Dark mode toggle */}
+      <button
+        onClick={toggleDarkMode}
+        className="fixed top-4 right-4 z-[9999] w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
+        aria-label="Toggle dark mode"
+      >
+        {isDarkMode ? (
+          <Sun className="w-5 h-5 text-yellow-500" />
+        ) : (
+          <Moon className="w-5 h-5 text-gray-700" />
+        )}
+      </button>
+
+      <div className={`auth-container ${isActive ? 'active' : ''}`} id="container">
+        {/* Sign Up Form */}
+        <div className="form-container sign-up">
+          <form onSubmit={handleSignUp}>
+            <h1>Create Account</h1>
+            <div className="social-icons">
+              <a href="#" className="icon"><i className="fa-brands fa-google-plus-g"></i></a>
+              <a href="#" className="icon"><i className="fa-brands fa-facebook-f"></i></a>
+              <a href="#" className="icon"><i className="fa-brands fa-github"></i></a>
+              <a href="#" className="icon"><i className="fa-brands fa-linkedin-in"></i></a>
+            </div>
+            <span>or use your email for registration</span>
+            <input
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? 'Processing...' : 'Sign Up'}
+            </button>
+          </form>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{isLogin ? 'Sign In' : 'Create Account'}</CardTitle>
-            <CardDescription>
-              {isLogin 
-                ? 'Enter your credentials to access your account' 
-                : 'Register as a new applicant'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {!isLogin && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="fullName"
-                        type="text"
-                        placeholder="John Doe"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number (Optional)</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="+1 234 567 8900"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
-              
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
+        {/* Sign In Form */}
+        <div className="form-container sign-in">
+          <form onSubmit={handleSignIn}>
+            <h1>Sign In</h1>
+            <div className="social-icons">
+              <a href="#" className="icon"><i className="fa-brands fa-google-plus-g"></i></a>
+              <a href="#" className="icon"><i className="fa-brands fa-facebook-f"></i></a>
+              <a href="#" className="icon"><i className="fa-brands fa-github"></i></a>
+              <a href="#" className="icon"><i className="fa-brands fa-linkedin-in"></i></a>
+            </div>
+            <span>or use your email password</span>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <a href="#">Forget Your Password?</a>
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? 'Processing...' : 'Sign In'}
+            </button>
+          </form>
+        </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center">
+        {/* Toggle Container */}
+        <div className="toggle-container">
+          <div className="toggle">
+            <div className="toggle-panel toggle-left">
+              <h1>Welcome Back!</h1>
+              <p>Enter your personal details to use all of site features</p>
               <button
                 type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-sm text-primary hover:underline"
+                className="hidden-btn"
+                onClick={() => setIsActive(false)}
               >
-                {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+                Sign In
               </button>
             </div>
-          </CardContent>
-        </Card>
+            <div className="toggle-panel toggle-right">
+              <h1>Hello, Friend!</h1>
+              <p>Register with your personal details to use all of site features</p>
+              <button
+                type="button"
+                className="hidden-btn"
+                onClick={() => setIsActive(true)}
+              >
+                Sign Up
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile toggle buttons */}
+      <div className="md:hidden mt-4 text-center">
+        {isActive ? (
+          <button
+            onClick={() => setIsActive(false)}
+            className="text-sm text-primary underline"
+          >
+            Already have an account? Sign In
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsActive(true)}
+            className="text-sm text-primary underline"
+          >
+            Don't have an account? Sign Up
+          </button>
+        )}
       </div>
     </div>
   );
