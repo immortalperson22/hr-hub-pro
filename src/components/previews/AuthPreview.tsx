@@ -15,12 +15,7 @@ export default function AuthPreview() {
         <div className="form-container sign-up-container">
           <form onSubmit={(e) => e.preventDefault()}>
             <h1>Create Account</h1>
-            <div className="social-container">
-              <a href="#" className="social"><i className="fab fa-facebook-f"></i></a>
-              <a href="#" className="social"><i className="fab fa-google-plus-g"></i></a>
-              <a href="#" className="social"><i className="fab fa-linkedin-in"></i></a>
-            </div>
-            <span>or use your email for registration</span>
+            <span>use your email for registration</span>
             <input type="text" placeholder="Full Name" defaultValue="John Doe" />
             <input type="email" placeholder="Email" defaultValue="preview@example.com" />
             <input type="password" placeholder="Password" defaultValue="••••••••" />
@@ -32,12 +27,7 @@ export default function AuthPreview() {
         <div className="form-container sign-in-container">
           <form onSubmit={(e) => e.preventDefault()}>
             <h1>Sign in</h1>
-            <div className="social-container">
-              <a href="#" className="social"><i className="fab fa-facebook-f"></i></a>
-              <a href="#" className="social"><i className="fab fa-google-plus-g"></i></a>
-              <a href="#" className="social"><i className="fab fa-linkedin-in"></i></a>
-            </div>
-            <span>or use your account</span>
+            <span>use your account</span>
             <input type="email" placeholder="Email" defaultValue="user@example.com" />
             <input type="password" placeholder="Password" defaultValue="••••••••" />
             <a href="#">Forgot your password?</a>

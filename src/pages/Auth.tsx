@@ -105,13 +105,7 @@ export default function Auth() {
         <div className="form-container sign-up">
           <form onSubmit={handleSignUp}>
             <h1>Create Account</h1>
-            <div className="social-icons">
-              <a href="#" className="icon"><i className="fa-brands fa-google-plus-g"></i></a>
-              <a href="#" className="icon"><i className="fa-brands fa-facebook-f"></i></a>
-              <a href="#" className="icon"><i className="fa-brands fa-github"></i></a>
-              <a href="#" className="icon"><i className="fa-brands fa-linkedin-in"></i></a>
-            </div>
-            <span>or use your email for registration</span>
+            <span>use your email for registration</span>
             <input
               type="text"
               placeholder="Name"
@@ -144,13 +138,7 @@ export default function Auth() {
         <div className="form-container sign-in">
           <form onSubmit={handleSignIn}>
             <h1>Sign In</h1>
-            <div className="social-icons">
-              <a href="#" className="icon"><i className="fa-brands fa-google-plus-g"></i></a>
-              <a href="#" className="icon"><i className="fa-brands fa-facebook-f"></i></a>
-              <a href="#" className="icon"><i className="fa-brands fa-github"></i></a>
-              <a href="#" className="icon"><i className="fa-brands fa-linkedin-in"></i></a>
-            </div>
-            <span>or use your email password</span>
+            <span>use your email password</span>
             <input
               type="email"
               placeholder="Email"
