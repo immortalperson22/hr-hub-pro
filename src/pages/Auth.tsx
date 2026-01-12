@@ -9,6 +9,7 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { signIn, signUp, user } = useAuth();
@@ -67,7 +68,7 @@ export default function Auth() {
       return;
     }
     setIsLoading(true);
-    const result = await signUp(email, password, name);
+    const result = await signUp(email, password, name, phone || undefined);
     if (result.error) {
       toast({
         title: 'Sign up failed',
@@ -81,6 +82,7 @@ export default function Auth() {
       });
       setIsActive(false);
       setName('');
+      setPhone('');
     }
     setIsLoading(false);
   };
@@ -119,6 +121,12 @@ export default function Auth() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+            />
+            <input
+              type="tel"
+              placeholder="Phone Number (optional)"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
             <input
               type="password"

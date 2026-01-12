@@ -18,6 +18,7 @@ export default function AuthPreview() {
             <span>use your email for registration</span>
             <input type="text" placeholder="Full Name" defaultValue="John Doe" />
             <input type="email" placeholder="Email" defaultValue="preview@example.com" />
+            <input type="tel" placeholder="Phone Number (optional)" defaultValue="+1-555-0123" />
             <input type="password" placeholder="Password" defaultValue="••••••••" />
             <button type="button" disabled>Sign Up (Preview)</button>
           </form>
