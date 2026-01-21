@@ -1,4 +1,4 @@
 -- Seed role for existing admin account (admin@hrhub.com)
 
 INSERT INTO public.user_roles (user_id, role) VALUES
-('9129183d-ee4e-49eb-ada7-81b59771e7fe', 'admin');
+('8977dced-6c0d-4102-9d1b-a26c4f6879b8', 'admin');
