@@ -32,16 +32,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchUserRole = async (userId: string) => {
+    console.log('Fetching role for userId:', userId);
     const { data, error } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', userId)
       .maybeSingle();
-    
+
+    console.log('Role fetch result:', { data, error });
     if (data && !error) {
       setRole(data.role as AppRole);
+      console.log('Role set to:', data.role);
     } else {
       setRole(null);
+      console.log('Role set to null, error:', error);
     }
   };
 
@@ -66,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          console.log('Logged in user ID:', session.user.id);
           setTimeout(() => {
             fetchUserRole(session.user.id);
             fetchProfile(session.user.id);
