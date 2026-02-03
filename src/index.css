@@ -253,6 +253,46 @@
 
   .dark .auth-container input::placeholder {
     color: hsl(210 15% 50%);
+   }
+
+  /* Password Toggle Styling */
+  .auth-container .password-input-container {
+    position: relative;
+    width: 100%;
+  }
+
+  .auth-container .password-input-container input {
+    padding-right: 40px;
+  }
+
+  .auth-container .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 30%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    transition: color 0.2s;
+  }
+
+  .auth-container .password-toggle:hover {
+    color: #333;
+  }
+
+  .dark .auth-container .password-toggle {
+    color: #999;
+  }
+
+  .dark .auth-container .password-toggle:hover {
+    color: #fff;
   }
 
   .form-container {
