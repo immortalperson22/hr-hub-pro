@@ -1,25 +1,39 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Eye, EyeOff } from 'lucide-react';
 import MFASetup from '@/components/auth/MFASetup';
 import MFAPrompt from '@/components/auth/MFAPrompt';
 
 export default function Auth() {
   const [isActive, setIsActive] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  
+  // Sign In state
+  const [signInEmail, setSignInEmail] = useState('');
+  const [signInPassword, setSignInPassword] = useState('');
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  
+  // Sign Up state
+  const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpPassword, setSignUpPassword] = useState('');
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+  const [signUpName, setSignUpName] = useState('');
+  const [signUpPhone, setSignUpPhone] = useState('');
+  
   const [isLoading, setIsLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showMFASetup, setShowMFASetup] = useState(false);
   const [showMFAPrompt, setShowMFAPrompt] = useState(false);
   const [pendingCredentials, setPendingCredentials] = useState<{email: string, password: string} | null>(null);
+  
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  // Form refs for resetting
+  const signInFormRef = useRef<HTMLFormElement>(null);
+  const signUpFormRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -46,10 +60,38 @@ export default function Auth() {
     }
   };
 
+  // Reset functions
+  const resetSignUp = () => {
+    setSignUpEmail('');
+    setSignUpPassword('');
+    setSignUpName('');
+    setSignUpPhone('');
+    setShowSignUpPassword(false);
+    signUpFormRef.current?.reset();
+  };
+
+  const resetSignIn = () => {
+    setSignInEmail('');
+    setSignInPassword('');
+    setShowSignInPassword(false);
+    signInFormRef.current?.reset();
+  };
+
+  // Toggle handlers
+  const handleSwitchToSignIn = () => {
+    resetSignUp();
+    setIsActive(false);
+  };
+
+  const handleSwitchToSignUp = () => {
+    resetSignIn();
+    setIsActive(true);
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const result = await signIn(email, password);
+    const result = await signIn(signInEmail, signInPassword);
     if (result.error) {
       toast({
         title: 'Sign in failed',
@@ -57,9 +99,7 @@ export default function Auth() {
         variant: 'destructive',
       });
     } else {
-      // In a real implementation, check if user has MFA enabled
-      // For now, we'll show MFA prompt for testing
-      setPendingCredentials({ email, password });
+      setPendingCredentials({ email: signInEmail, password: signInPassword });
       setShowMFAPrompt(true);
     }
     setIsLoading(false);
@@ -67,7 +107,7 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
+    if (!signUpName.trim()) {
       toast({
         title: 'Name required',
         description: 'Please enter your full name.',
@@ -76,7 +116,7 @@ export default function Auth() {
       return;
     }
     setIsLoading(true);
-    const result = await signUp(email, password, name, phone || undefined);
+    const result = await signUp(signUpEmail, signUpPassword, signUpName, signUpPhone || undefined);
     if (result.error) {
       toast({
         title: 'Sign up failed',
@@ -89,6 +129,7 @@ export default function Auth() {
         description: 'Now set up two-factor authentication.',
       });
       setShowMFASetup(true);
+      resetSignUp();
       setIsActive(false);
     }
     setIsLoading(false);
@@ -119,8 +160,6 @@ export default function Auth() {
                 title: 'MFA Setup Complete!',
                 description: 'Your account is now secure with two-factor authentication.',
               });
-              setName('');
-              setPhone('');
             }}
           />
         </div>
@@ -146,37 +185,46 @@ export default function Auth() {
       <div className={`auth-container ${isActive ? 'active' : ''}`} id="container">
         {/* Sign Up Form */}
         <div className="form-container sign-up">
-          <form onSubmit={handleSignUp}>
+          <form ref={signUpFormRef} onSubmit={handleSignUp}>
             <h1>Create Account</h1>
             <span>use your email for registration</span>
             <input
               type="text"
               placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={signUpName}
+              onChange={(e) => setSignUpName(e.target.value)}
               required
             />
             <input
               type="email"
               placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={signUpEmail}
+              onChange={(e) => setSignUpEmail(e.target.value)}
               required
             />
             <input
               type="tel"
               placeholder="Phone Number (optional)"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={signUpPhone}
+              onChange={(e) => setSignUpPhone(e.target.value)}
             />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
+            <div className="password-input-container">
+              <input
+                type={showSignUpPassword ? "text" : "password"}
+                placeholder="Password"
+                value={signUpPassword}
+                onChange={(e) => setSignUpPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+              >
+                {showSignUpPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
             <button type="submit" disabled={isLoading}>
               {isLoading ? 'Processing...' : 'Sign Up'}
             </button>
@@ -185,24 +233,33 @@ export default function Auth() {
 
         {/* Sign In Form */}
         <div className="form-container sign-in">
-          <form onSubmit={handleSignIn}>
+          <form ref={signInFormRef} onSubmit={handleSignIn}>
             <h1>Sign In</h1>
             <span>use your email password</span>
             <input
               type="email"
               placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={signInEmail}
+              onChange={(e) => setSignInEmail(e.target.value)}
               required
             />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <a href="#">Forget Your Password?</a>
+            <div className="password-input-container">
+              <input
+                type={showSignInPassword ? "text" : "password"}
+                placeholder="Password"
+                value={signInPassword}
+                onChange={(e) => setSignInPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowSignInPassword(!showSignInPassword)}
+              >
+                {showSignInPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            <a href="#" onClick={(e) => { e.preventDefault(); alert('Forgot password feature coming soon'); }}>Forget Your Password?</a>
             <button type="submit" disabled={isLoading}>
               {isLoading ? 'Processing...' : 'Sign In'}
             </button>
@@ -218,7 +275,7 @@ export default function Auth() {
               <button
                 type="button"
                 className="hidden-btn"
-                onClick={() => setIsActive(false)}
+                onClick={handleSwitchToSignIn}
               >
                 Sign In
               </button>
@@ -229,7 +286,7 @@ export default function Auth() {
               <button
                 type="button"
                 className="hidden-btn"
-                onClick={() => setIsActive(true)}
+                onClick={handleSwitchToSignUp}
               >
                 Sign Up
               </button>
@@ -242,14 +299,14 @@ export default function Auth() {
       <div className="md:hidden mt-4 text-center">
         {isActive ? (
           <button
-            onClick={() => setIsActive(false)}
+            onClick={handleSwitchToSignIn}
             className="text-sm text-primary underline"
           >
             Already have an account? Sign In
           </button>
         ) : (
           <button
-            onClick={() => setIsActive(true)}
+            onClick={handleSwitchToSignUp}
             className="text-sm text-primary underline"
           >
             Don't have an account? Sign Up

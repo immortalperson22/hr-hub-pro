@@ -40,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .maybeSingle();
 
     console.log('Role fetch result:', { data, error });
+    console.log('All user_roles:', await supabase.from('user_roles').select('*'));
     if (data && !error) {
       setRole(data.role as AppRole);
       console.log('Role set to:', data.role);
