@@ -449,6 +449,10 @@
     margin: 8px 0;
   }
 
+  .dark .password-strength {
+    background-color: transparent;
+  }
+
   .strength-bar {
     height: 4px;
     background-color: #eee;
@@ -489,8 +493,12 @@
     display: block;
   }
 
+  .dark .strength-text {
+    color: #fff;
+  }
+
   .dark .strength-bar {
-    background-color: hsl(220 20% 20%);
+    background-color: hsl(220 20% 35%);
   }
 
   .password-error {
