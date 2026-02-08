@@ -49,7 +49,7 @@ export default function ResetPassword() {
     } else {
       setSuccess(true);
       setTimeout(() => {
-        window.location.href = '/auth';
+        window.location.href = 'http://localhost:8080/auth';
       }, 1500);
     }
   };
