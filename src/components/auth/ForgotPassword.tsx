@@ -23,6 +23,9 @@ export default function ForgotPassword() {
     setMessage('');
 
     try {
+      // Set flag to prevent dashboard redirect when going back to this tab
+      localStorage.setItem('resettingPassword', 'true');
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });

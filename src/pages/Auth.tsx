@@ -34,7 +34,8 @@ export default function Auth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
+    const isResetting = localStorage.getItem('resettingPassword');
+    if (user && !isResetting) {
       navigate('/dashboard');
     }
   }, [user, navigate]);

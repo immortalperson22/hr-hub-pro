@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Key, Loader2, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -10,6 +10,11 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Clear resetting flag when component mounts
+  useEffect(() => {
+    localStorage.removeItem('resettingPassword');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +54,8 @@ export default function ResetPassword() {
     if (updateError) {
       setError(updateError.message || "Failed to update password");
     } else {
+      // Clear the resetting flag so dashboard redirect works normally
+      localStorage.removeItem('resettingPassword');
       setSuccess(true);
       setTimeout(() => {
         window.location.href = 'http://localhost:8080/auth';
