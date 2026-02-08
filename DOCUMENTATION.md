@@ -6,6 +6,59 @@
 
 ---
 
+## Version History
+
+This document tracks all changes, additions, and fixes made throughout the development of the Sagility platform.
+
+### Version 1.0 (February 3, 2026)
+Initial release of the Sagility Employee Management Platform.
+
+**Added:**
+- Complete authentication system with Sign In and Sign Up functionality
+- Role-based access control (Admin, Employee, Applicant roles)
+- Separate state management for Sign In and Sign Up forms
+- Password visibility toggle with eye icons
+- Automatic field clearing on tab switch
+- MFA support (Email/SMS OTP-based)
+- Dark mode support throughout the application
+- Database schema with user_roles and document_uploads tables
+- Row Level Security (RLS) policies
+- Responsive design for desktop and mobile
+
+### Version 1.1 (February 8, 2026)
+Enhanced authentication and password requirements.
+
+**Fixed:**
+- Password validation to properly accept @ symbol and special characters
+- Redirect to login page after successful password reset
+- Password visibility toggle added to Reset Password page
+
+**Added:**
+- Comprehensive password validation requirements (8+ chars, upper, lower, number, special)
+- Real-time password strength indicator (Weak/Medium/Strong)
+
+### Version 1.2 (February 8, 2026)
+Implemented complete password reset functionality and email templates.
+
+**Added:**
+- Password Reset Feature with dedicated ForgotPassword component
+- Password Reset Feature with dedicated ResetPassword component
+- Brand color #00CEC8 (Teal) documentation and usage
+- Localhost URL configuration for password reset redirect
+
+### Version 1.3 (February 8, 2026)
+UI/UX improvements and email template enhancements.
+
+**Added:**
+- Password strength meter colors (red/orange/yellow/green) for better visual feedback
+- Increased font sizes on Auth page for improved readability
+- Dark mode text color fixes for password strength indicator
+- Email templates (Confirm Sign-Up & Reset Password) with teal (#00CEC8) branding
+- Logo.png moved to public/ folder for email templates
+- Dashboard redirect prevention when resetting password (localStorage flag system)
+
+---
+
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
@@ -714,3 +767,8 @@ While localhost connection issues remain to be fully resolved, the foundational 
 *Document generated for capstone project documentation purposes.*
 *Sagility - Employee Management Platform*
 *Version 1.3 - February 8, 2026*
+
+**Version 1.3 Highlights:**
+- Enhanced UI with password strength meter colors and larger fonts
+- Custom email templates with teal (#00CEC8) branding
+- Improved password reset flow with redirect prevention
