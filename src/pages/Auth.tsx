@@ -314,7 +314,7 @@ export default function Auth() {
                 {showSignInPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            <a href="#">Forget Your Password?</a>
+            <a href="/forgot-password" className="forgot-password-link">Forgot your password?</a>
             <button type="submit" disabled={isLoading}>
               {isLoading ? 'Processing...' : 'Sign In'}
             </button>

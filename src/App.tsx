@@ -10,6 +10,8 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import DevMode from "./pages/DevMode";
 import NotFound from "./pages/NotFound";
+import ForgotPassword from "./components/auth/ForgotPassword";
+import ResetPassword from "./components/auth/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,8 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/auth" element={<Auth />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/dev-mode" element={<DevMode />} />
       <Route
         path="/dashboard"
