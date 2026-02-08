@@ -2,7 +2,7 @@
 
 **Project:** Sagility - Employee Management Platform
 **Date:** February 8, 2026
-**Version:** 1.1
+**Version:** 1.2
 
 ---
 
@@ -10,15 +10,18 @@
 
 1. [Project Overview](#project-overview)
 2. [Authentication System](#authentication-system)
-3. [Database Schema](#database-schema)
-4. [User Roles and Permissions](#user-roles-and-permissions)
-5. [Technical Stack](#technical-stack)
-6. [Features Implemented](#features-implemented)
-7. [Files Modified](#files-modified)
-8. [Known Issues](#known-issues)
-9. [Setup Instructions](#setup-instructions)
-10. [Testing Checklist](#testing-checklist)
-11. [Next Steps](#next-steps)
+3. [Password Reset Feature](#password-reset-feature)
+4. [Database Schema](#database-schema)
+5. [User Roles and Permissions](#user-roles-and-permissions)
+6. [Technical Stack](#technical-stack)
+7. [Features Implemented](#features-implemented)
+8. [Files Modified](#files-modified)
+9. [Known Issues](#known-issues)
+10. [Setup Instructions](#setup-instructions)
+11. [Testing Checklist](#testing-checklist)
+12. [Next Steps](#next-steps)
+13. [Git Commit History](#git-commit-history)
+14. [Conclusion](#conclusion)
 
 ---
 
@@ -151,6 +154,106 @@ const validatePassword = (password: string): string => {
   return '';
 };
 ```
+
+---
+
+## Password Reset Feature
+
+### Overview
+
+Added complete password reset flow with email verification allowing users to recover their accounts securely.
+
+### Features
+
+#### 1. Forgot Password Page
+
+**Route:** `/forgot-password`
+**File:** `src/components/auth/ForgotPassword.tsx`
+
+- User enters email to receive password reset link
+- Email validation with error messages
+- Loading state during submission
+- Success message confirming email sent
+- Link back to login page
+- Responsive design with dark mode support
+
+**Usage:**
+1. User navigates to `/forgot-password`
+2. Enters registered email address
+3. Clicks "Send Reset Link"
+4. Receives email with reset link
+5. Clicks link to set new password
+
+#### 2. Reset Password Page
+
+**Route:** `/reset-password`
+**File:** `src/components/auth/ResetPassword.tsx`
+
+- User sets new password after clicking email link
+- Comprehensive password validation
+- Password visibility toggle (Eye/EyeOff icons)
+- Confirm password validation
+- Real-time password strength checklist
+- Redirect to login page after successful reset
+- Loading states and error handling
+
+**Password Requirements:**
+- Minimum 8 characters
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one number
+- At least one special character (@, #, $, etc.)
+
+**Redirect Behavior:**
+- After successful password update, waits 1.5 seconds
+- Automatically redirects to `http://localhost:8080/auth`
+- Displays success message before redirect
+
+### Supabase Configuration
+
+#### Redirect URL Configuration
+
+**Required Setting:** Add redirect URL in Supabase Dashboard
+
+1. Go to: https://supabase.com/dashboard/project/gvhiemfhscdepjrscfyw/auth/url-configuration
+2. Add to **Additional Redirect URLs**:
+   ```
+   http://localhost:8080/reset-password
+   ```
+3. Click **Save**
+
+#### Email Templates
+
+Supabase automatically sends password reset emails. Default template includes:
+- Reset link with token
+- Expiration time
+- Security notice
+
+Customize at: **Authentication** → **Templates** → **Password Reset**
+
+### Security Features
+
+1. **Secure Password Storage**
+   - Supabase handles password hashing (bcrypt)
+   - No plain text passwords stored
+
+2. **Token-Based Reset**
+   - Time-limited reset tokens
+   - One-time use only
+   - Invalidated after successful reset
+
+3. **Rate Limiting**
+   - Supabase handles abuse protection
+   - Prevents mass password reset attacks
+
+### Error Handling
+
+| Error | Message |
+|-------|---------|
+| Email not found | "User not found" |
+| Rate limited | "Too many requests" |
+| Token expired | "Reset link expired" |
+| Password too weak | Detailed validation message |
 
 ---
 
@@ -294,13 +397,17 @@ Created seed data for testing:
 - Automatic field clearing on tab switch
 - Password strength validation with visual indicator
 - MFA support (Email/SMS OTP-based)
-- Forgot password placeholder
+- Forgot Password page with email reset
+- Reset Password page with comprehensive validation
+- Password visibility toggle on Reset Password page
+- Automatic redirect to login after password reset
 
 ✅ **UI/UX Improvements:**
 - Modern password input design with embedded eye toggle
 - Dark mode support for all auth components
 - Responsive mobile toggle buttons
 - Toast notifications for user feedback
+- Real-time password strength checklist
 
 ✅ **Database Setup:**
 - Role assignment tables with ENUM type
@@ -325,15 +432,19 @@ Created seed data for testing:
 | File | Changes |
 |------|---------|
 | src/pages/Auth.tsx | Complete auth component rewrite with separate state, password validation, field clearing |
+| src/pages/Auth.tsx | Added "Forgot your password?" link to login form |
 | src/hooks/useAuth.tsx | Authentication hooks with role fetching |
 | src/index.css | Password toggle styling and password strength indicator |
 | src/lib/mfa.ts | MFA helper functions for OTP generation and sending |
+| src/components/auth/ForgotPassword.tsx | NEW - Password reset request page |
+| src/components/auth/ResetPassword.tsx | NEW - Password reset completion page with validation |
 
 ### Configuration Files
 
 | File | Changes |
 |------|---------|
-| .env | Supabase project configuration |
+| .env | Supabase project configuration (updated with new credentials) |
+| src/App.tsx | Added routes for /forgot-password and /reset-password |
 
 ### Database Files
 
@@ -422,14 +533,32 @@ npx supabase db push
 
 ## Testing Checklist
 
-- [ ] Server starts successfully on localhost:8081
-- [ ] Admin account logs in with full access
-- [ ] Employee account logs in with limited access
-- [ ] Password visibility toggle works on both forms
-- [ ] Fields clear when switching between Sign In and Sign Up
-- [ ] MFA setup and prompt modals function correctly
-- [ ] Dark mode toggle works
-- [ ] Mobile responsive design functions
+### Authentication Testing
+
+- [x] Server starts successfully on localhost:8080
+- [x] Admin account logs in with full access
+- [x] Employee account logs in with limited access
+- [x] Password visibility toggle works on both forms
+- [x] Fields clear when switching between Sign In and Sign Up
+- [x] MFA setup and prompt modals function correctly
+- [x] Dark mode toggle works
+- [x] Mobile responsive design functions
+- [x] Password strength indicator works correctly
+- [x] Special character (@) accepted in passwords
+
+### Password Reset Testing
+
+- [ ] Navigate to /forgot-password
+- [ ] Enter valid email address
+- [ ] Receive password reset email
+- [ ] Click reset link in email
+- [ ] Reset Password page loads correctly
+- [ ] Password with @ symbol accepted
+- [ ] Confirm password validation works
+- [ ] Password visibility toggle works
+- [ ] Strong password submitted successfully
+- [ ] Redirect to login page after success
+- [ ] Can login with new password
 
 ---
 
@@ -437,10 +566,11 @@ npx supabase db push
 
 ### Immediate Priorities
 
-1. **Fix Localhost Connection Issues**
-   - Ensure server runs on port 8081
-   - Test with multiple browsers
-   - Verify firewall settings
+1. **Test Password Reset Flow**
+   - Verify forgot password email delivery
+   - Test reset link functionality
+   - Confirm redirect to login after reset
+   - Validate new password login
 
 2. **Test Authentication Flow**
    - Sign up new applicant
@@ -487,6 +617,11 @@ feat: add password strength requirements
 feat: remove completion popup message
 feat: implement conditional MFA for sign-in
 feat: enhance auth system with validations
+feat: Add forgot password and reset password pages
+fix: Update Supabase credentials to new project
+fix: ResetPassword validation and redirect
+fix: Redirect to localhost:8080/auth after password reset
+fix: Add password visibility toggle to ResetPassword
 ```
 
 ---
@@ -508,12 +643,15 @@ While localhost connection issues remain to be fully resolved, the foundational 
    - Multi-factor authentication (MFA)
    - Password strength requirements
    - Role-based access control
+   - Secure password reset with email verification
 
 2. **User-Centric Design**
    - Password visibility toggle
    - Automatic field clearing
    - Dark mode support
    - Responsive design
+   - Forgot password flow
+   - Real-time password strength indicators
 
 3. **Modern Technology Stack**
    - React 18 with TypeScript
@@ -531,16 +669,20 @@ While localhost connection issues remain to be fully resolved, the foundational 
 6. Mobile responsive layout
 7. MFA setup modal
 8. Submission status workflow
+9. Forgot Password page
+10. Reset Password page with validation
+11. Password strength checklist
 
 ### Technical Diagrams Recommended
 
 1. Database schema showing user_roles and submissions relationships
 2. Authentication flow diagram
-3. Role-based access control hierarchy
-4. Component architecture overview
+3. Password reset flow diagram
+4. Role-based access control hierarchy
+5. Component architecture overview
 
 ---
 
 *Document generated for capstone project documentation purposes.*
 *Sagility - Employee Management Platform*
-*Version 1.0 - February 3, 2026*
+*Version 1.2 - February 8, 2026*
