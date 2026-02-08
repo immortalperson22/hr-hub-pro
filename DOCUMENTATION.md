@@ -255,6 +255,18 @@ Customize at: **Authentication** → **Templates** → **Password Reset**
 | Token expired | "Reset link expired" |
 | Password too weak | Detailed validation message |
 
+### Brand Colors
+
+The Forgot Password and Reset Password pages use the project's brand color:
+
+| Element | Color |
+|---------|-------|
+| Submit Buttons | `#00CEC8` (Teal) |
+| Links | `#00CEC8` (Teal) |
+| Hover States | `#00CEC8/90` (Slightly darker teal) |
+
+This color is consistent with the application's overall design language and provides a cohesive user experience.
+
 ---
 
 ## Database Schema
