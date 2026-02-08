@@ -2,7 +2,7 @@
 
 **Project:** Sagility - Employee Management Platform
 **Date:** February 8, 2026
-**Version:** 1.2
+**Version:** 1.3
 
 ---
 
@@ -407,12 +407,13 @@ Created seed data for testing:
 - Separate state management for Sign In and Sign Up forms
 - Password visibility toggle with eye icons
 - Automatic field clearing on tab switch
-- Password strength validation with visual indicator
+- Password strength validation with visual indicator (red/orange/yellow/green)
 - MFA support (Email/SMS OTP-based)
 - Forgot Password page with email reset
 - Reset Password page with comprehensive validation
 - Password visibility toggle on Reset Password page
 - Automatic redirect to login after password reset
+- Dashboard redirect prevention when resetting password
 
 ✅ **UI/UX Improvements:**
 - Modern password input design with embedded eye toggle
@@ -420,6 +421,14 @@ Created seed data for testing:
 - Responsive mobile toggle buttons
 - Toast notifications for user feedback
 - Real-time password strength checklist
+- Increased font sizes on Auth page for better readability
+- Improved password strength meter colors for dark mode
+
+✅ **Email Templates:**
+- Confirm Sign-Up email template with teal (#00CEC8) branding
+- Reset Password email template with teal branding
+- Logo removed from email templates for better compatibility
+- Custom HTML email templates for brand consistency
 
 ✅ **Database Setup:**
 - Role assignment tables with ENUM type
@@ -446,10 +455,11 @@ Created seed data for testing:
 | src/pages/Auth.tsx | Complete auth component rewrite with separate state, password validation, field clearing |
 | src/pages/Auth.tsx | Added "Forgot your password?" link to login form |
 | src/hooks/useAuth.tsx | Authentication hooks with role fetching |
-| src/index.css | Password toggle styling and password strength indicator |
+| src/index.css | Password toggle styling, password strength indicator, increased font sizes for Auth page |
 | src/lib/mfa.ts | MFA helper functions for OTP generation and sending |
 | src/components/auth/ForgotPassword.tsx | NEW - Password reset request page |
 | src/components/auth/ResetPassword.tsx | NEW - Password reset completion page with validation |
+| public/logo.png | Logo moved to public folder for email templates |
 
 ### Configuration Files
 
@@ -634,6 +644,12 @@ fix: Update Supabase credentials to new project
 fix: ResetPassword validation and redirect
 fix: Redirect to localhost:8080/auth after password reset
 fix: Add password visibility toggle to ResetPassword
+docs: Update DOCUMENTATION.md with password reset feature
+docs: Add brand color #00CEC8 to Password Reset Feature section
+fix: Prevent dashboard redirect when going back to forgot password page
+fix: Add CSS color to password strength meter
+fix: Improve password strength meter styling for dark mode
+fix: Increase font sizes on Auth page for better readability
 ```
 
 ---
@@ -697,4 +713,4 @@ While localhost connection issues remain to be fully resolved, the foundational 
 
 *Document generated for capstone project documentation purposes.*
 *Sagility - Employee Management Platform*
-*Version 1.2 - February 8, 2026*
+*Version 1.3 - February 8, 2026*
