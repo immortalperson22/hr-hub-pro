@@ -1,8 +1,8 @@
-# HR Pro Hub - Development Documentation
+# Sagility - Development Documentation
 
-**Project:** HR Pro Hub - Employee Management Platform  
-**Date:** February 3, 2026  
-**Version:** 1.0
+**Project:** Sagility - Employee Management Platform
+**Date:** February 8, 2026
+**Version:** 1.1
 
 ---
 
@@ -24,7 +24,7 @@
 
 ## Project Overview
 
-HR Pro Hub is an employee management platform built with modern web technologies. It features role-based authentication, multi-factor authentication (MFA/TOTP), PDF document submission workflows, and secure data handling.
+Sagility is an employee management platform built with modern web technologies. It features role-based authentication, multi-factor authentication (MFA/TOTP), PDF document submission workflows, and secure data handling.
 
 ### Key Objectives
 
@@ -43,7 +43,7 @@ The authentication system has been significantly enhanced with the following imp
 
 #### 1. Complete State Separation
 
-The Auth component now maintains completely separate state for Sign In and Sign Up forms, eliminating data persistence issues when switching between tabs.
+The Auth component maintains completely separate state for Sign In and Sign Up forms, eliminating data persistence issues when switching between tabs.
 
 **Sign In State:**
 ```typescript
@@ -74,57 +74,33 @@ Password visibility toggles were added to both password fields using Lucide Reac
 - Full dark mode support
 
 **CSS Implementation:**
-```css
-.auth-container .password-input-container {
-  position: relative;
-  width: 100%;
-}
-
-.auth-container .password-input-container input {
-  padding-right: 40px;
-}
-
-.auth-container .password-toggle {
-  position: absolute;
-  right: 10px;
-  top: 30%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #888;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  transition: color 0.2s;
-}
-
-.auth-container .password-toggle:hover {
-  color: #333;
-}
-
-.dark .auth-container .password-toggle {
-  color: #999;
-}
-
-.dark .auth-container .password-toggle:hover {
-  color: #fff;
-}
-```
+See `src/index.css` for complete styling.
 
 #### 3. Automatic Field Clearing
 
 Implemented `resetSignUp()` and `resetSignIn()` functions that:
 - Clear all form fields when toggling between Sign In and Sign Up
-- Reset form references using `formRef.current?.reset()`
 - Clear visibility toggle states
+- Clear password error messages
 - Ensure no data persists between form switches
 
 **Toggle Handlers:**
 ```typescript
+const resetSignUp = () => {
+  setSignUpEmail('');
+  setSignUpPassword('');
+  setSignUpName('');
+  setSignUpPhone('');
+  setShowSignUpPassword(false);
+  setPasswordError('');
+};
+
+const resetSignIn = () => {
+  setSignInEmail('');
+  setSignInPassword('');
+  setShowSignInPassword(false);
+};
+
 const handleSwitchToSignIn = () => {
   resetSignUp();
   setIsActive(false);
@@ -138,22 +114,42 @@ const handleSwitchToSignUp = () => {
 
 #### 4. Multi-Factor Authentication (MFA)
 
-The system supports TOTP-based MFA for enhanced security:
+The system supports Email/SMS-based OTP MFA for enhanced security:
 - MFA Setup modal appears after successful sign-up
 - MFA Prompt modal appears during sign-in for enabled users
-- Uses authenticator apps (Google Authenticator, etc.)
+- Users can choose between Email or SMS verification
+- 6-digit verification codes are sent via console log (test mode)
 
 #### 5. Password Strength Requirements
 
-Sign-up enforces strong passwords:
+Sign-up enforces strong passwords with real-time validation:
 - Minimum 8 characters
 - At least one uppercase letter
 - At least one lowercase letter
 - At least one number
-- At least one special character
+- At least one special character (@$!%*?&)
+- Visual strength indicator shows weak/medium/strong
 
+**Validation Function:**
 ```typescript
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/;
+const validatePassword = (password: string): string => {
+  if (password.length < 8) {
+    return 'Password must be at least 8 characters';
+  }
+  if (!/[A-Z]/.test(password)) {
+    return 'Password must contain at least one uppercase letter';
+  }
+  if (!/[a-z]/.test(password)) {
+    return 'Password must contain at least one lowercase letter';
+  }
+  if (!/\d/.test(password)) {
+    return 'Password must contain at least one number';
+  }
+  if (!/[@$!%*?&]/.test(password)) {
+    return 'Password must contain at least one special character (@$!%*?&)';
+  }
+  return '';
+};
 ```
 
 ---
@@ -168,42 +164,58 @@ Successfully executed Supabase migration creating:
 
 **public.user_roles** - Maps users to roles (admin, employee, applicant)
 - Links to `auth.users(id)` for secure authentication integration
+- Uses ENUM type `app_role` for role values
 
-#### 2. Submissions Table
+#### 2. Document Uploads Table
 
 ```sql
-CREATE TABLE IF NOT EXISTS public.submissions (
+CREATE TABLE IF NOT EXISTS public.document_uploads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id),
-  salary_pdf TEXT,
-  policy_pdf TEXT,
-  status TEXT DEFAULT 'pending' CHECK (status IN ('pending','rejected','approved')),
-  admin_comment TEXT,
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  original_filename TEXT NOT NULL,
+  stored_filename TEXT NOT NULL,
+  storage_path TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
+  rejection_reason TEXT,
+  uploaded_at TIMESTAMPTZ DEFAULT NOW(),
+  reviewed_at TIMESTAMPTZ,
+  reviewed_by UUID REFERENCES auth.users(id)
 );
 ```
 
 #### 3. Row Level Security (RLS) Policies
 
-**Applicant Policy:**
-Users can only see their own submissions:
+**User Policy:**
+Users can only see their own uploads:
 ```sql
-CREATE POLICY "applicant sees own submissions"
-ON public.submissions FOR SELECT
+CREATE POLICY "Users can view their own uploads"
+ON public.document_uploads FOR SELECT
 USING (auth.uid() = user_id);
 ```
 
 **Admin Policy:**
-Admins can view and edit all submissions:
+Admins can view and edit all uploads:
 ```sql
-CREATE POLICY "admin sees all submissions"
-ON public.submissions FOR ALL
-USING (
-  EXISTS (
-    SELECT 1 FROM public.user_roles
-    WHERE user_id = auth.uid() AND role = 'admin'
-  )
-);
+CREATE POLICY "Admins can view all uploads"
+ON public.document_uploads FOR SELECT
+USING (public.has_role(auth.uid(), 'admin'));
+```
+
+**Security Functions:**
+```sql
+CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role app_role)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+AS $$
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.user_roles
+        WHERE user_id = _user_id
+          AND role = _role
+    )
+$$;
 ```
 
 #### 4. Role Seeding
@@ -280,8 +292,8 @@ Created seed data for testing:
 - Separate state management for Sign In and Sign Up forms
 - Password visibility toggle with eye icons
 - Automatic field clearing on tab switch
-- Password strength validation
-- MFA support (TOTP-based)
+- Password strength validation with visual indicator
+- MFA support (Email/SMS OTP-based)
 - Forgot password placeholder
 
 ✅ **UI/UX Improvements:**
@@ -291,10 +303,10 @@ Created seed data for testing:
 - Toast notifications for user feedback
 
 ✅ **Database Setup:**
-- Role assignment tables
-- Submissions table for PDF documents
+- Role assignment tables with ENUM type
+- Document uploads table for PDF documents
 - Row Level Security policies
-- Role-based access control
+- Role-based access control with security definer functions
 
 ### User Roles
 
@@ -312,9 +324,10 @@ Created seed data for testing:
 
 | File | Changes |
 |------|---------|
-| src/pages/Auth.tsx | Complete auth component rewrite |
+| src/pages/Auth.tsx | Complete auth component rewrite with separate state, password validation, field clearing |
 | src/hooks/useAuth.tsx | Authentication hooks with role fetching |
-| src/index.css | Password toggle styling |
+| src/index.css | Password toggle styling and password strength indicator |
+| src/lib/mfa.ts | MFA helper functions for OTP generation and sending |
 
 ### Configuration Files
 
@@ -326,7 +339,7 @@ Created seed data for testing:
 
 | File | Purpose |
 |------|---------|
-| supabase/migrations/20260123000000_setup_roles_and_submissions.sql | Migration script |
+| supabase/migrations/20251223153400_b2e899b8-95d4-485d-a869-8864b2b591c6.sql | Migration script |
 
 ---
 
@@ -482,7 +495,7 @@ feat: enhance auth system with validations
 
 Today's session successfully implemented critical authentication enhancements including complete state separation, password visibility toggles, and automatic field clearing. The database schema was established with proper role-based access control and security policies.
 
-While localhost connection issues remain to be fully resolved, the foundational components are in place for continued development of the HR Pro Hub platform.
+While localhost connection issues remain to be fully resolved, the foundational components are in place for continued development of the Sagility platform.
 
 ---
 
@@ -529,5 +542,5 @@ While localhost connection issues remain to be fully resolved, the foundational 
 ---
 
 *Document generated for capstone project documentation purposes.*
-*HR Pro Hub - Employee Management Platform*
+*Sagility - Employee Management Platform*
 *Version 1.0 - February 3, 2026*

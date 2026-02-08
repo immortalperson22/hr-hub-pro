@@ -1,22 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Eye, EyeOff } from 'lucide-react';
 import MFASetup from '@/components/auth/MFASetup';
 import MFAPrompt from '@/components/auth/MFAPrompt';
 
 export default function Auth() {
   const [isActive, setIsActive] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+
+  const [signInEmail, setSignInEmail] = useState('');
+  const [signInPassword, setSignInPassword] = useState('');
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+
+  const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpPassword, setSignUpPassword] = useState('');
+  const [signUpName, setSignUpName] = useState('');
+  const [signUpPhone, setSignUpPhone] = useState('');
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showMFASetup, setShowMFASetup] = useState(false);
   const [showMFAPrompt, setShowMFAPrompt] = useState(false);
   const [pendingCredentials, setPendingCredentials] = useState<{email: string, password: string} | null>(null);
+
+  const [passwordError, setPasswordError] = useState('');
+
+  const formRef = useRef<HTMLDivElement>(null);
+
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -46,10 +58,64 @@ export default function Auth() {
     }
   };
 
+  const validatePassword = (password: string): string => {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters';
+    }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/[a-z]/.test(password)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/\d/.test(password)) {
+      return 'Password must contain at least one number';
+    }
+    if (!/[@$!%*?&]/.test(password)) {
+      return 'Password must contain at least one special character (@$!%*?&)';
+    }
+    return '';
+  };
+
+  const getPasswordStrength = (password: string): number => {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[@$!%*?&]/.test(password)) strength++;
+    return strength;
+  };
+
+  const resetSignUp = () => {
+    setSignUpEmail('');
+    setSignUpPassword('');
+    setSignUpName('');
+    setSignUpPhone('');
+    setShowSignUpPassword(false);
+    setPasswordError('');
+  };
+
+  const resetSignIn = () => {
+    setSignInEmail('');
+    setSignInPassword('');
+    setShowSignInPassword(false);
+  };
+
+  const handleSwitchToSignIn = () => {
+    resetSignUp();
+    setIsActive(false);
+  };
+
+  const handleSwitchToSignUp = () => {
+    resetSignIn();
+    setIsActive(true);
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const result = await signIn(email, password);
+    const result = await signIn(signInEmail, signInPassword);
     if (result.error) {
       toast({
         title: 'Sign in failed',
@@ -57,9 +123,7 @@ export default function Auth() {
         variant: 'destructive',
       });
     } else {
-      // In a real implementation, check if user has MFA enabled
-      // For now, we'll show MFA prompt for testing
-      setPendingCredentials({ email, password });
+      setPendingCredentials({ email: signInEmail, password: signInPassword });
       setShowMFAPrompt(true);
     }
     setIsLoading(false);
@@ -67,7 +131,7 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
+    if (!signUpName.trim()) {
       toast({
         title: 'Name required',
         description: 'Please enter your full name.',
@@ -75,8 +139,21 @@ export default function Auth() {
       });
       return;
     }
+
+    const error = validatePassword(signUpPassword);
+    if (error) {
+      setPasswordError(error);
+      toast({
+        title: 'Password requirements',
+        description: error,
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
-    const result = await signUp(email, password, name, phone || undefined);
+    const result = await signUp(signUpEmail, signUpPassword, signUpName, signUpPhone || undefined);
     if (result.error) {
       toast({
         title: 'Sign up failed',
@@ -90,6 +167,7 @@ export default function Auth() {
       });
       setShowMFASetup(true);
       setIsActive(false);
+      resetSignUp();
     }
     setIsLoading(false);
   };
@@ -145,38 +223,63 @@ export default function Auth() {
 
       <div className={`auth-container ${isActive ? 'active' : ''}`} id="container">
         {/* Sign Up Form */}
-        <div className="form-container sign-up">
+        <div className="form-container sign-up" ref={formRef}>
           <form onSubmit={handleSignUp}>
             <h1>Create Account</h1>
             <span>use your email for registration</span>
             <input
               type="text"
               placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={signUpName}
+              onChange={(e) => setSignUpName(e.target.value)}
               required
             />
             <input
               type="email"
               placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={signUpEmail}
+              onChange={(e) => setSignUpEmail(e.target.value)}
               required
             />
             <input
               type="tel"
               placeholder="Phone Number (optional)"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={signUpPhone}
+              onChange={(e) => setSignUpPhone(e.target.value)}
             />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
+            <div className="password-input-container">
+              <input
+                type={showSignUpPassword ? "text" : "password"}
+                placeholder="Password"
+                value={signUpPassword}
+                onChange={(e) => {
+                  setSignUpPassword(e.target.value);
+                  setPasswordError('');
+                }}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+              >
+                {showSignUpPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {signUpPassword && (
+              <div className="password-strength">
+                <div className="strength-bar">
+                  <div
+                    className={`strength-fill strength-${getPasswordStrength(signUpPassword)}`}
+                    style={{ width: `${(getPasswordStrength(signUpPassword) / 5) * 100}%` }}
+                  />
+                </div>
+                <span className="strength-text">
+                  {getPasswordStrength(signUpPassword) < 3 ? 'Weak' : getPasswordStrength(signUpPassword) < 5 ? 'Medium' : 'Strong'}
+                </span>
+              </div>
+            )}
+            {passwordError && <p className="password-error">{passwordError}</p>}
             <button type="submit" disabled={isLoading}>
               {isLoading ? 'Processing...' : 'Sign Up'}
             </button>
@@ -191,17 +294,26 @@ export default function Auth() {
             <input
               type="email"
               placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={signInEmail}
+              onChange={(e) => setSignInEmail(e.target.value)}
               required
             />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="password-input-container">
+              <input
+                type={showSignInPassword ? "text" : "password"}
+                placeholder="Password"
+                value={signInPassword}
+                onChange={(e) => setSignInPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowSignInPassword(!showSignInPassword)}
+              >
+                {showSignInPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             <a href="#">Forget Your Password?</a>
             <button type="submit" disabled={isLoading}>
               {isLoading ? 'Processing...' : 'Sign In'}
@@ -218,7 +330,7 @@ export default function Auth() {
               <button
                 type="button"
                 className="hidden-btn"
-                onClick={() => setIsActive(false)}
+                onClick={handleSwitchToSignIn}
               >
                 Sign In
               </button>
@@ -229,7 +341,7 @@ export default function Auth() {
               <button
                 type="button"
                 className="hidden-btn"
-                onClick={() => setIsActive(true)}
+                onClick={handleSwitchToSignUp}
               >
                 Sign Up
               </button>
@@ -242,14 +354,14 @@ export default function Auth() {
       <div className="md:hidden mt-4 text-center">
         {isActive ? (
           <button
-            onClick={() => setIsActive(false)}
+            onClick={handleSwitchToSignIn}
             className="text-sm text-primary underline"
           >
             Already have an account? Sign In
           </button>
         ) : (
           <button
-            onClick={() => setIsActive(true)}
+            onClick={handleSwitchToSignUp}
             className="text-sm text-primary underline"
           >
             Don't have an account? Sign Up

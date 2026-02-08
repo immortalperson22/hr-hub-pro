@@ -1,4 +1,4 @@
-# HR Pro Hub - Employee Management Platform
+# Sagility - Employee Management Platform
 
 **A comprehensive employee management system built as a capstone project**
 
@@ -6,7 +6,7 @@
 
 ## 📋 Project Overview
 
-HR Pro Hub is an employee management platform designed to streamline HR operations. This project demonstrates full-stack development skills including secure authentication, role-based access control, document management, and responsive UI design.
+Sagility is an employee management platform designed to streamline HR operations. This project demonstrates full-stack development skills including secure authentication, role-based access control, document management, and responsive UI design.
 
 ### Key Features
 
