@@ -134,7 +134,7 @@ export default function ResetPassword() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg disabled:opacity-60 transition-colors dark:bg-blue-600 dark:hover:bg-blue-500"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-[#00CEC8] hover:bg-[#00CEC8]/90 text-white font-medium rounded-lg disabled:opacity-60 transition-colors dark:bg-[#00CEC8] dark:hover:bg-[#00CEC8]/90"
           >
             {loading && <Loader2 className="h-5 w-5 animate-spin" />}
             {loading ? 'Updating...' : 'Update Password'}

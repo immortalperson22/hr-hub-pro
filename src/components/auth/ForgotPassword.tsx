@@ -102,12 +102,12 @@ export default function ForgotPassword() {
             disabled={loading}
             className={`
               w-full flex items-center justify-center gap-2 py-3 px-4
-              bg-blue-600 hover:bg-blue-700
+              bg-[#00CEC8] hover:bg-[#00CEC8]/90
               text-white font-medium rounded-lg
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+              focus:outline-none focus:ring-2 focus:ring-[#00CEC8] focus:ring-offset-2
               disabled:opacity-60 disabled:cursor-not-allowed
               transition-all duration-200
-              dark:bg-blue-600 dark:hover:bg-blue-500
+              dark:bg-[#00CEC8] dark:hover:bg-[#00CEC8]/90
             `}
           >
             {loading ? (
@@ -125,7 +125,7 @@ export default function ForgotPassword() {
         <div className="mt-8 text-center text-sm">
           <Link
             to="/auth"
-            className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors flex items-center justify-center gap-1"
+            className="text-[#00CEC8] hover:text-[#00CEC8]/80 dark:text-[#00CEC8] dark:hover:text-[#00CEC8]/80 font-medium transition-colors flex items-center justify-center gap-1"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to sign in
