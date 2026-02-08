@@ -158,19 +158,19 @@
   }
 
   .auth-container p {
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 16px;
+    line-height: 22px;
     letter-spacing: 0.3px;
     margin: 20px 0;
   }
 
   .auth-container span {
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .auth-container a {
     color: #333;
-    font-size: 13px;
+    font-size: 15px;
     text-decoration: none;
     margin: 15px 0 10px;
   }
@@ -182,8 +182,8 @@
   .auth-container button {
     background-color: #0ABAB5;
     color: #fff;
-    font-size: 12px;
-    padding: 10px 45px;
+    font-size: 14px;
+    padding: 12px 48px;
     border: 1px solid transparent;
     border-radius: 8px;
     font-weight: 600;
@@ -205,7 +205,25 @@
 
   .auth-container button.hidden-btn {
     background-color: transparent;
-    border-color: #fff;
+    border: 2px solid #fff;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 35px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .auth-container button.hidden-btn:hover {
+    background-color: #fff;
+    color: #0ABAB5;
+  }
+
+  .forgot-password-link {
+    font-size: 15px !important;
   }
 
   .auth-container form {
@@ -224,22 +242,37 @@
 
   .auth-container form h1 {
     color: hsl(220 30% 15%);
+    font-size: 26px;
   }
 
   .dark .auth-container form h1 {
     color: hsl(210 20% 95%);
+    font-size: 26px;
   }
 
   .auth-container input {
     background-color: #eee;
     border: none;
     margin: 8px 0;
-    padding: 10px 15px;
-    font-size: 13px;
-    border-radius: 8px;
-    width: 100%;
+    padding: 12px 15px;
+    font-size: 15px;
     outline: none;
+    width: 100%;
     color: #333;
+    border-radius: 4px;
+  }
+
+  .auth-container input::placeholder {
+    color: #999;
+  }
+
+  .dark .auth-container input {
+    background-color: hsl(220 25% 18%);
+    color: #fff;
+  }
+
+  .dark .auth-container input::placeholder {
+    color: hsl(220 10% 60%);
   }
 
   .dark .auth-container input {
@@ -390,6 +423,12 @@
 
   .toggle-panel h1 {
     color: #fff !important;
+    font-size: 26px;
+  }
+
+  .toggle-panel p {
+    color: #fff !important;
+    font-size: 16px;
   }
 
   .toggle-left {
