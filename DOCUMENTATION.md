@@ -1,8 +1,8 @@
 # Sagility - Development Documentation
 
 **Project:** Sagility - Employee Management Platform
-**Date:** February 8, 2026
-**Version:** 1.3
+**Date:** February 13, 2026
+**Version:** 1.4
 
 ---
 
@@ -57,6 +57,21 @@ UI/UX improvements and email template enhancements.
 - Logo.png moved to public/ folder for email templates
 - Dashboard redirect prevention when resetting password (localStorage flag system)
 
+### Version 1.4 (February 13, 2026)
+Simplified authentication flow and removed phone verification.
+
+**Removed:**
+- Phone number input from signup form
+- SMS and Voice verification options from MFA
+- Custom MFA modal from signup flow (now uses Supabase email confirmation)
+
+**Fixed:**
+- Password visibility toggle icons (Eye/EyeOff now display correctly)
+
+**Added:**
+- OPERATIONS.md for session tracking and conversation history
+- Simplified signup flow using Supabase built-in email confirmation
+
 ---
 
 ## Table of Contents
@@ -80,7 +95,7 @@ UI/UX improvements and email template enhancements.
 
 ## Project Overview
 
-Sagility is an employee management platform built with modern web technologies. It features role-based authentication, multi-factor authentication (MFA/TOTP), PDF document submission workflows, and secure data handling.
+Sagility is an employee management platform built with modern web technologies. It features role-based authentication, email-based MFA (multi-factor authentication), PDF document submission workflows, and secure data handling.
 
 ### Key Objectives
 
@@ -170,11 +185,13 @@ const handleSwitchToSignUp = () => {
 
 #### 4. Multi-Factor Authentication (MFA)
 
-The system supports Email/SMS-based OTP MFA for enhanced security:
-- MFA Setup modal appears after successful sign-up
+The system supports Email-based MFA for enhanced security:
 - MFA Prompt modal appears during sign-in for enabled users
-- Users can choose between Email or SMS verification
+- Email verification is used (no SMS/Voice)
+- Users receive verification codes via email
 - 6-digit verification codes are sent via console log (test mode)
+
+**Note:** As of Version 1.4, phone/SMS verification was removed. MFA uses email-only verification.
 
 #### 5. Password Strength Requirements
 
@@ -458,15 +475,16 @@ Created seed data for testing:
 
 ✅ **Authentication Enhancements:**
 - Separate state management for Sign In and Sign Up forms
-- Password visibility toggle with eye icons
+- Password visibility toggle with eye icons (fixed Feb 13)
 - Automatic field clearing on tab switch
 - Password strength validation with visual indicator (red/orange/yellow/green)
-- MFA support (Email/SMS OTP-based)
+- MFA support (Email-only, SMS/Voice removed in v1.4)
 - Forgot Password page with email reset
 - Reset Password page with comprehensive validation
 - Password visibility toggle on Reset Password page
 - Automatic redirect to login after password reset
 - Dashboard redirect prevention when resetting password
+- Simplified signup flow using Supabase email confirmation
 
 ✅ **UI/UX Improvements:**
 - Modern password input design with embedded eye toggle
@@ -475,6 +493,7 @@ Created seed data for testing:
 - Toast notifications for user feedback
 - Real-time password strength checklist
 - Increased font sizes on Auth page for better readability
+- Password toggle icons fixed (EyeOff shown when hidden, Eye when visible)
 - Improved password strength meter colors for dark mode
 
 ✅ **Email Templates:**
@@ -507,11 +526,15 @@ Created seed data for testing:
 |------|---------|
 | src/pages/Auth.tsx | Complete auth component rewrite with separate state, password validation, field clearing |
 | src/pages/Auth.tsx | Added "Forgot your password?" link to login form |
+| src/pages/Auth.tsx | Removed phone input, fixed password toggle icons (v1.4) |
 | src/hooks/useAuth.tsx | Authentication hooks with role fetching |
+| src/hooks/useAuth.tsx | Email redirect configuration for confirmation (v1.4) |
 | src/index.css | Password toggle styling, password strength indicator, increased font sizes for Auth page |
 | src/lib/mfa.ts | MFA helper functions for OTP generation and sending |
 | src/components/auth/ForgotPassword.tsx | NEW - Password reset request page |
 | src/components/auth/ResetPassword.tsx | NEW - Password reset completion page with validation |
+| src/components/auth/MFASetup.tsx | Simplified to email-only MFA (v1.4) |
+| src/components/auth/MFAPrompt.tsx | Simplified to email-only verification (v1.4) |
 | public/logo.png | Logo moved to public folder for email templates |
 
 ### Configuration Files
@@ -520,6 +543,14 @@ Created seed data for testing:
 |------|---------|
 | .env | Supabase project configuration (updated with new credentials) |
 | src/App.tsx | Added routes for /forgot-password and /reset-password |
+| src/App.tsx | Added route for /confirm (v1.4) |
+
+### Documentation Files
+
+| File | Changes |
+|------|---------|
+| OPERATIONS.md | NEW - Session tracker and conversation history (v1.4) |
+| DOCUMENTATION.md | Version 1.4 updates (Feb 13, 2026) |
 
 ### Database Files
 
@@ -613,13 +644,15 @@ npx supabase db push
 - [x] Server starts successfully on localhost:8080
 - [x] Admin account logs in with full access
 - [x] Employee account logs in with limited access
-- [x] Password visibility toggle works on both forms
+- [x] Password visibility toggle works on both forms (fixed Feb 13)
 - [x] Fields clear when switching between Sign In and Sign Up
-- [x] MFA setup and prompt modals function correctly
+- [x] MFA prompt modal functions correctly (email-only)
 - [x] Dark mode toggle works
 - [x] Mobile responsive design functions
 - [x] Password strength indicator works correctly
 - [x] Special character (@) accepted in passwords
+- [ ] Signup flow: Check email confirmation link works
+- [ ] Signup flow: Confirmation popup displays after email verification
 
 ### Password Reset Testing
 
