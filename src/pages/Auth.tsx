@@ -16,7 +16,6 @@ export default function Auth() {
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
   const [signUpName, setSignUpName] = useState('');
-  const [signUpPhone, setSignUpPhone] = useState('');
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -92,7 +91,6 @@ export default function Auth() {
     setSignUpEmail('');
     setSignUpPassword('');
     setSignUpName('');
-    setSignUpPhone('');
     setShowSignUpPassword(false);
     setPasswordError('');
   };
@@ -154,7 +152,7 @@ export default function Auth() {
     }
 
     setIsLoading(true);
-    const result = await signUp(signUpEmail, signUpPassword, signUpName, signUpPhone || undefined);
+    const result = await signUp(signUpEmail, signUpPassword, signUpName);
     if (result.error) {
       toast({
         title: 'Sign up failed',
@@ -164,9 +162,8 @@ export default function Auth() {
     } else {
       toast({
         title: 'Account created!',
-        description: 'Now set up two-factor authentication.',
+        description: 'Please check your email to confirm your account.',
       });
-      setShowMFASetup(true);
       setIsActive(false);
       resetSignUp();
     }
@@ -242,12 +239,6 @@ export default function Auth() {
               onChange={(e) => setSignUpEmail(e.target.value)}
               required
             />
-            <input
-              type="tel"
-              placeholder="Phone Number (optional)"
-              value={signUpPhone}
-              onChange={(e) => setSignUpPhone(e.target.value)}
-            />
             <div className="password-input-container">
               <input
                 type={showSignUpPassword ? "text" : "password"}
@@ -264,7 +255,7 @@ export default function Auth() {
                 className="password-toggle"
                 onClick={() => setShowSignUpPassword(!showSignUpPassword)}
               >
-                {showSignUpPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showSignUpPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
             </div>
             {signUpPassword && (
@@ -312,7 +303,7 @@ export default function Auth() {
                 className="password-toggle"
                 onClick={() => setShowSignInPassword(!showSignInPassword)}
               >
-                {showSignInPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showSignInPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
             </div>
             <a href="/forgot-password" className="forgot-password-link">Forgot your password?</a>
