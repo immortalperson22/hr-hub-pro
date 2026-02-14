@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Moon, Sun, Eye, EyeOff } from 'lucide-react';
-import MFASetup from '@/components/auth/MFASetup';
-import MFAPrompt from '@/components/auth/MFAPrompt';
 
 export default function Auth() {
   const [isActive, setIsActive] = useState(false);
@@ -20,9 +18,6 @@ export default function Auth() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [showMFASetup, setShowMFASetup] = useState(false);
-  const [showMFAPrompt, setShowMFAPrompt] = useState(false);
-  const [pendingCredentials, setPendingCredentials] = useState<{email: string, password: string} | null>(null);
 
   const [passwordError, setPasswordError] = useState('');
 
@@ -122,8 +117,7 @@ export default function Auth() {
         variant: 'destructive',
       });
     } else {
-      setPendingCredentials({ email: signInEmail, password: signInPassword });
-      setShowMFAPrompt(true);
+      navigate('/dashboard');
     }
     setIsLoading(false);
   };
@@ -184,40 +178,6 @@ export default function Auth() {
           <Moon className="w-5 h-5 text-gray-700" />
         )}
       </button>
-
-      {/* MFA Setup Modal */}
-      {showMFASetup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000] p-4">
-          <MFASetup
-            onComplete={() => {
-              setShowMFASetup(false);
-              toast({
-                title: 'MFA Setup Complete!',
-                description: 'Your account is now secure with two-factor authentication.',
-              });
-              setName('');
-              setPhone('');
-            }}
-          />
-        </div>
-      )}
-
-      {/* MFA Login Prompt */}
-      {showMFAPrompt && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000] p-4">
-          <MFAPrompt
-            onSuccess={() => {
-              setShowMFAPrompt(false);
-              setPendingCredentials(null);
-              navigate('/dashboard');
-            }}
-            onCancel={() => {
-              setShowMFAPrompt(false);
-              setPendingCredentials(null);
-            }}
-          />
-        </div>
-      )}
 
       <div className={`auth-container ${isActive ? 'active' : ''}`} id="container">
         {/* Sign Up Form */}
