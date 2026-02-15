@@ -123,13 +123,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('Profile creation error:', profileError);
       }
 
-      // Assign default role as applicant
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: data.user.id,
-          role: 'applicant'
-        });
+      // Assign default role as applicant using RPC (bypasses RLS)
+      const { error: roleError } = await supabase.rpc('assign_default_role', {
+        p_user_uuid: data.user.id
+      });
 
       if (roleError) {
         console.error('Role assignment error:', roleError);
