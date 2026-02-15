@@ -12,6 +12,9 @@ import DevMode from "./pages/DevMode";
 import NotFound from "./pages/NotFound";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
+import ApplicantDashboard from "./pages/ApplicantDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import Verify from "./pages/Verify";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +36,50 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function ApplicantRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading, role } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (role !== 'applicant' && role !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading, role } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (role !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+}
+
 function AppRoutes() {
   return (
     <Routes>
@@ -40,6 +87,7 @@ function AppRoutes() {
       <Route path="/auth" element={<Auth />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/verify" element={<Verify />} />
       <Route path="/dev-mode" element={<DevMode />} />
       <Route
         path="/dashboard"
@@ -47,6 +95,22 @@ function AppRoutes() {
           <ProtectedRoute>
             <Dashboard />
           </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/applicant"
+        element={
+          <ApplicantRoute>
+            <ApplicantDashboard />
+          </ApplicantRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
         }
       />
       <Route path="*" element={<NotFound />} />
