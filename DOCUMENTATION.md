@@ -1,8 +1,8 @@
 # Sagility - Development Documentation
 
 **Project:** Sagility - Employee Management Platform
-**Date:** February 13, 2026
-**Version:** 1.4
+**Date:** February 16, 2026
+**Version:** 1.5
 
 ---
 
@@ -71,6 +71,23 @@ Simplified authentication flow and removed phone verification.
 **Added:**
 - OPERATIONS.md for session tracking and conversation history
 - Simplified signup flow using Supabase built-in email confirmation
+
+### Version 1.5 (February 16, 2026)
+Added applicant workflow and email verification flow improvements.
+
+**Added:**
+- ApplicantDashboard.tsx: PDF upload for Pre-Employment and Policy documents
+- AdminDashboard.tsx: Admin review, approve/reject workflow
+- Verify.tsx: Enhanced verification page with pending state, resend button
+- PdfFixEditor.tsx: PDF re-upload overlay component
+- Applicants table migration with RLS policies
+- SMTP configuration for Gmail (sagility22@gmail.com)
+- Custom email templates with Sagility branding
+
+**Changed:**
+- Signup redirects to /verify page with email parameter
+- Verify page now handles pending, confirmed, and error states
+- Added resend confirmation email functionality
 
 ---
 

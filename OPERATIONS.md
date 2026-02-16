@@ -56,6 +56,57 @@ Notes: [Any additional info]
 | 2026-02-13 | Password Toggle Fix | Swapped Eye/EyeOff icons | Icons now show correctly |
 | 2026-02-13 | Signup Flow Change | Removed MFA modal from signup | Uses Supabase email confirmation |
 | 2026-02-13 | Email Confirm Page | Created /confirm page (then undone) | Rate limit hit, pending retest |
+| 2026-02-13 | Password Toggle Fix (v1.3) | Fixed again after revert | Eye/EyeOff now correct |
+| 2026-02-15 | Applicant Dashboard | Created PDF upload components | Pre-Employment + Policy |
+| 2026-02-15 | Admin Dashboard | Created review workflow | Approve/Reject |
+| 2026-02-15 | Verify Page | Created confirmation redirect | /verify route |
+| 2026-02-15 | Role Assignment Fix | Created RPC function | assign_default_role for applicant |
+| 2026-02-15 | SMTP Setup | Configured Gmail SMTP | sagility22@gmail.com |
+| 2026-02-16 | Email Template Fix | Recreated custom template | Works now |
+| 2026-02-16 | Verify Page Update | Added pending state + resend | Now handles all states |
+
+---
+
+## Conversation Details
+
+### Topic: SMTP Configuration
+**Date:** 2026-02-15 to 2026-02-16
+**Actions:**
+- Set up Gmail SMTP with sagility22@gmail.com
+- Generated App Password for Supabase
+- Fixed custom email template (recreated it)
+- Template now shows Sagility branding
+**Result:** ✅ Custom emails working
+
+### Topic: Verify Page Enhancement
+**Date:** 2026-02-16
+**Actions:**
+- Modified Verify.tsx to handle pending/loading/confirmed/error states
+- Added Resend Confirmation Email button
+- Added Go to Sign In button
+- Updated Auth.tsx to redirect to /verify?email= after signup
+**Result:** ✅ Works now
+
+### Topic: Applicant Workflow
+**Date:** 2026-02-15
+**Actions:**
+- Created ApplicantDashboard.tsx with PDF upload
+- Created AdminDashboard.tsx for review
+- Created PdfFixEditor.tsx for re-uploads
+- Created applicants table migration
+**Result:** ✅ Components created
+
+### Topic: Role Assignment Fix
+**Date:** 2026-02-15
+**Actions:**
+- Created assign_default_role() function in Supabase
+- Updated signUp to use RPC function
+- Fixed RLS policies for user_roles
+**Result:** ✅ New users get applicant role automatically
+| 2026-02-13 | Remove Phone Verification | Removed SMS/Voice options | Only email verification remains |
+| 2026-02-13 | Password Toggle Fix | Swapped Eye/EyeOff icons | Icons now show correctly |
+| 2026-02-13 | Signup Flow Change | Removed MFA modal from signup | Uses Supabase email confirmation |
+| 2026-02-13 | Email Confirm Page | Created /confirm page (then undone) | Rate limit hit, pending retest |
 |  |  |  |  |
 
 ---
@@ -192,7 +243,7 @@ ls -la /home/JerutaX/Downloads/hr-hub-pro-main/dist/
 
 ## Current Project Status
 
-**Last Updated:** 2026-02-13
+**Last Updated:** 2026-02-16
 
 ### What's Working:
 - Authentication (Sign In/Sign Up)
@@ -274,5 +325,5 @@ ls -la /home/JerutaX/Downloads/hr-hub-pro-main/dist/
 
 ---
 
-**Last Updated:** 2026-02-13
+**Last Updated:** 2026-02-16
 **Maintained By:** JerutaX
