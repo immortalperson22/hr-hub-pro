@@ -158,7 +158,7 @@ export default function Auth() {
         title: 'Account created!',
         description: 'Please check your email to confirm your account.',
       });
-      navigate('/verify');
+      setIsActive(false);
       resetSignUp();
     }
     setIsLoading(false);
