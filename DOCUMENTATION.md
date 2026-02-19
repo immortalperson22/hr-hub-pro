@@ -72,22 +72,25 @@ Simplified authentication flow and removed phone verification.
 - OPERATIONS.md for session tracking and conversation history
 - Simplified signup flow using Supabase built-in email confirmation
 
-### Version 1.5 (February 16, 2026)
-Added applicant workflow and email verification flow improvements.
+### Version 1.6 (February 19, 2026)
+Unified Dashboard and Infrastructure Overhaul.
 
-**Added:**
-- ApplicantDashboard.tsx: PDF upload for Pre-Employment and Policy documents
-- AdminDashboard.tsx: Admin review, approve/reject workflow
-- Verify.tsx: Enhanced verification page with pending state, resend button
-- PdfFixEditor.tsx: PDF re-upload overlay component
-- Applicants table migration with RLS policies
-- SMTP configuration for Gmail (sagility22@gmail.com)
-- Custom email templates with Sagility branding
+**Design & UI:**
+- **Dashboard Unification**: Retired redundant standalone dashboard pages and consolidated all role-based logic into a single `/dashboard` route.
+- **Premium Aesthetics**: Fully integrated the teal/dark theme from the designs into the shared `ApplicantDashboard` and `AdminDashboard` components.
+- **Improved Feedback**: Admins can now provide granular feedback (per-document comments) in addition to overall conclusions.
 
-**Changed:**
-- Signup redirects to /verify page with email parameter
-- Verify page now handles pending, confirmed, and error states
-- Added resend confirmation email functionality
+**Infrastructure & Database:**
+- **Storage Policies**: Fixed a critical blocker by adding RLS policies for the `applicant-docs` bucket, allowing secure uploads and viewing.
+- **Schema Synchronization**: Added missing feedback columns and foreign key relationships to the `applicants` table to match the UI requirements.
+- **Automated Profiles**: Implemented a database trigger (`handle_new_user`) to automatically create and sync user profiles from auth metadata, ensuring applicant names are never missing.
+- **RLS Fixes**: Resolved infinite recursion in `user_roles` policies and established the missing relationship between `applicants` and `profiles` in the schema cache.
+- **Role Promotion**: Finalized the logic for promoting approved applicants to employees automatically.
+
+**Bug Fixes:**
+- Resolved "Split System" issue where users were landing on legacy designs.
+- Fixed Admin visibility issues where the dashboard appeared empty despite data existence.
+- Corrected schema relationship errors that prevented applicant data from being queried.
 
 ---
 

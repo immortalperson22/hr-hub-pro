@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -108,7 +108,12 @@
     @apply bg-background text-foreground font-sans antialiased;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-heading font-semibold tracking-tight;
   }
 }
@@ -117,11 +122,11 @@
   .status-pending {
     @apply bg-warning/10 text-warning border-warning/20;
   }
-  
+
   .status-approved {
     @apply bg-success/10 text-success border-success/20;
   }
-  
+
   .status-rejected {
     @apply bg-destructive/10 text-destructive border-destructive/20;
   }
@@ -286,7 +291,7 @@
 
   .dark .auth-container input::placeholder {
     color: hsl(210 15% 50%);
-   }
+  }
 
   /* Password Toggle Styling */
   .auth-container .password-input-container {
@@ -360,11 +365,15 @@
   }
 
   @keyframes authMove {
-    0%, 49.99% {
+
+    0%,
+    49.99% {
       opacity: 0;
       z-index: 1;
     }
-    50%, 100% {
+
+    50%,
+    100% {
       opacity: 1;
       z-index: 5;
     }
@@ -458,7 +467,8 @@
       display: none;
     }
 
-    .sign-in, .sign-up {
+    .sign-in,
+    .sign-up {
       width: 100%;
       position: relative;
     }

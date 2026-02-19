@@ -64,6 +64,10 @@ Notes: [Any additional info]
 | 2026-02-15 | SMTP Setup | Configured Gmail SMTP | sagility22@gmail.com |
 | 2026-02-16 | Email Template Fix | Recreated custom template | Works now |
 | 2026-02-16 | Verify Page Update | Added pending state + resend | Now handles all states |
+| 2026-02-19 | Submission Debugging | Fixed Storage + RLS + Table Cols | Verified PDF uploads work |
+| 2026-02-19 | Dashboard Unification | Unified routes at /dashboard | Removed legacy split system |
+| 2026-02-19 | Admin Visibility Fix | Fixed RLS + Schema relationship | Admin can now see applicants |
+| 2026-02-19 | Automated Profiles | Added DB Trigger for profile sync | Fixes missing applicant names |
 
 ---
 
@@ -103,11 +107,36 @@ Notes: [Any additional info]
 - Updated signUp to use RPC function
 - Fixed RLS policies for user_roles
 **Result:** ✅ New users get applicant role automatically
-| 2026-02-13 | Remove Phone Verification | Removed SMS/Voice options | Only email verification remains |
-| 2026-02-13 | Password Toggle Fix | Swapped Eye/EyeOff icons | Icons now show correctly |
-| 2026-02-13 | Signup Flow Change | Removed MFA modal from signup | Uses Supabase email confirmation |
-| 2026-02-13 | Email Confirm Page | Created /confirm page (then undone) | Rate limit hit, pending retest |
-|  |  |  |  |
+
+---
+
+## Conversation Details (2026-02-19)
+
+### Topic 1: Split System & Dashboard Unification
+**Issue:** Users were split between legacy and premium designs across multiple routes (`/dashboard`, `/admin`, `/applicant`).
+**Actions:**
+- Unified all roles at the `/dashboard` route.
+- Replaced legacy common components with the premium Teal/Dark designs.
+- Removed redundant routes and standalone page files (`src/pages/AdminDashboard.tsx`, etc.).
+- Synchronized components to work within the standard `Layout` structure.
+**Result:** ✅ Single, unified premium experience for all roles.
+
+### Topic 2: Submission Infrastructure Failure
+**Issue:** PDF uploads were failing due to missing storage policies and database column mismatches.
+**Actions:**
+- Created RLS policies for the `applicant-docs` bucket.
+- Added missing `feedback` columns to the `applicants` table.
+- Fixed RLS policies on the `applicants` table to allow secure submissions.
+**Result:** ✅ Verified that PDF uploads function correctly.
+
+### Topic 3: Admin Data Visibility & Name Sync
+**Issue:** Admin dashboard showed zero applicants and names were listed as "Unknown".
+**Actions:**
+- Resolved RLS recursion in `user_roles` policy.
+- Established the missing foreign key link between `applicants` and `profiles`.
+- Created a database trigger `handle_new_user` to automatically sync names from auth metadata to profiles.
+- Manually fixed the name for the existing test applicant.
+**Result:** ✅ Admin can see all applicants with their real names.
 
 ---
 

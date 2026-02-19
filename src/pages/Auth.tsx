@@ -303,22 +303,35 @@ export default function Auth() {
       </div>
 
       {/* Mobile toggle buttons */}
-      <div className="md:hidden mt-4 text-center">
+      <div className="md:hidden mt-4 text-center space-y-2">
         {isActive ? (
           <button
             onClick={handleSwitchToSignIn}
-            className="text-sm text-primary underline"
+            className="text-sm text-primary underline block w-full"
           >
             Already have an account? Sign In
           </button>
         ) : (
           <button
             onClick={handleSwitchToSignUp}
-            className="text-sm text-primary underline"
+            className="text-sm text-primary underline block w-full"
           >
             Don't have an account? Sign Up
           </button>
         )}
+        <a href="/dev-mode" className="text-xs text-muted-foreground underline block w-full">
+          Preview Design (1.png)
+        </a>
+      </div>
+
+      {/* Desktop Design Preview Link */}
+      <div className="hidden md:block fixed bottom-4 left-4 z-50">
+        <a
+          href="/dev-mode"
+          className="px-4 py-2 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-medium backdrop-blur-sm hover:bg-primary/20 transition-all"
+        >
+          Preview Design Sample
+        </a>
       </div>
     </div>
   );

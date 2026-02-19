@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select('role')
       .eq('user_id', userId)
       .maybeSingle();
-    
+
     if (data && !error) {
       setRole(data.role as AppRole);
     } else {
@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select('*')
       .eq('user_id', userId)
       .maybeSingle();
-    
+
     if (data && !error) {
       setProfile(data as Profile);
     } else {
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
           setTimeout(() => {
             fetchUserRole(session.user.id);
@@ -98,31 +98,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, fullName: string, phone?: string) => {
     const redirectUrl = `${window.location.origin}/verify`;
-    
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl
+        emailRedirectTo: redirectUrl,
+        data: {
+          full_name: fullName,
+          phone: phone || null
+        }
       }
     });
 
     if (error) return { error };
 
+    // Note: Profile creation is now handled by a database trigger 
+    // to ensure it works even if email confirmation is required.
+
     if (data.user) {
-      // Create profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          user_id: data.user.id,
-          full_name: fullName,
-          phone: phone || null
-        });
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-      }
-
       // Assign default role as applicant using RPC (bypasses RLS)
       const { error: roleError } = await supabase.rpc('assign_default_role', {
         p_user_uuid: data.user.id

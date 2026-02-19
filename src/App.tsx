@@ -12,8 +12,6 @@ import DevMode from "./pages/DevMode";
 import NotFound from "./pages/NotFound";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
-import ApplicantDashboard from "./pages/ApplicantDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
 import Verify from "./pages/Verify";
 
 const queryClient = new QueryClient();
@@ -33,7 +31,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/auth" replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <>{children}</>
+  );
 }
 
 function ApplicantRoute({ children }: { children: React.ReactNode }) {
@@ -55,7 +55,9 @@ function ApplicantRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <>{children}</>
+  );
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
@@ -77,7 +79,9 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <>{children}</>
+  );
 }
 
 function AppRoutes() {
@@ -95,22 +99,6 @@ function AppRoutes() {
           <ProtectedRoute>
             <Dashboard />
           </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/applicant"
-        element={
-          <ApplicantRoute>
-            <ApplicantDashboard />
-          </ApplicantRoute>
-        }
-      />
-      <Route
-        path="/admin"
-        element={
-          <AdminRoute>
-            <AdminDashboard />
-          </AdminRoute>
         }
       />
       <Route path="*" element={<NotFound />} />
