@@ -16,8 +16,12 @@ interface ApplicantRecord {
   policy_rules_feedback: string | null;
 }
 
-const PRE_EMPLOYEMENT_SIG_URL = 'https://www.sejda.com/sign-pdf?files=[%7B%22downloadUrl%22%3A%22https%3A%2F%2Fdrive.google.com%2Fuc%3Fexport%3Ddownload%26id%3D1GHeJTZPXcIdZkMg8X0DaV9O4adqA-H5c%22%7D]';
-const POLICY_SIG_URL = 'https://www.sejda.com/sign-pdf?files=[%7B%22downloadUrl%22%3A%22https%3A%2F%2Fdrive.google.com%2Fuc%3Fexport%3Ddownload%26id%3D1moSDwjV9A4UJngeGBJGTfQbFmiMlgXMl%22%7D]';
+const PRE_EMPLOYMENT_TEMPLATE = 'https://drive.google.com/uc?export=download&id=1GHeJTZPXcIdZkMg8X0DaV9O4adqA-H5c';
+const POLICY_TEMPLATE = 'https://drive.google.com/uc?export=download&id=1moSDwjV9A4UJngeGBJGTfQbFmiMlgXMl';
+
+const getSejdaUrl = (fileUrl: string) => {
+  return `https://www.sejda.com/sign-pdf?files=[${JSON.stringify({ downloadUrl: fileUrl })}]`;
+};
 
 export default function ApplicantDashboard() {
   const { user } = useAuth();
@@ -244,7 +248,7 @@ export default function ApplicantDashboard() {
           </div>
 
           <a
-            href={PRE_EMPLOYEMENT_SIG_URL}
+            href={getSejdaUrl(applicant?.pre_employment_url || PRE_EMPLOYMENT_TEMPLATE)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 mb-4 w-fit"
@@ -311,7 +315,7 @@ export default function ApplicantDashboard() {
           </div>
 
           <a
-            href={POLICY_SIG_URL}
+            href={getSejdaUrl(applicant?.policy_rules_url || POLICY_TEMPLATE)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 mb-4 w-fit"
