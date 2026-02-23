@@ -36,54 +36,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ApplicantRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading, role } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  if (role !== 'applicant' && role !== 'admin') {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return (
-    <>{children}</>
-  );
-}
-
-function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading, role } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  if (role !== 'admin') {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return (
-    <>{children}</>
-  );
-}
-
 function AppRoutes() {
   return (
     <Routes>
