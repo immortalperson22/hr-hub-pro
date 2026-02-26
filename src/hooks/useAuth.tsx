@@ -88,8 +88,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    // Real-time listener for role changes
+    const roleChannel = supabase
+      .channel('public:user_roles')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_roles',
+          filter: user ? `user_id=eq.${user.id}` : undefined
+        },
+        (payload) => {
+          if (payload.new && (payload.new as any).role) {
+            setRole((payload.new as any).role as AppRole);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+      supabase.removeChannel(roleChannel);
+    };
+  }, [user]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -118,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (data.user) {
       // Assign default role as applicant using RPC (bypasses RLS)
-      const { error: roleError } = await supabase.rpc('assign_default_role', {
+      const { error: roleError } = await supabase.rpc('assign_default_role' as any, {
         p_user_uuid: data.user.id
       });
 

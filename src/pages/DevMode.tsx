@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, Upload, AlertCircle, X, Download } from 'lucide-react';
+import { FileText, Upload, AlertCircle, X, Download, Loader2, CheckCircle2, PartyPopper } from 'lucide-react';
 import DarkModeToggle from '@/components/DarkModeToggle';
 
 /**
@@ -8,19 +8,22 @@ import DarkModeToggle from '@/components/DarkModeToggle';
  * Access at /dev-mode (no auth required).
  */
 export default function DevMode() {
+  const [status, setStatus] = useState<'normal' | 'pending' | 'revision' | 'approved'>('revision');
   const [preEmploymentFile, setPreEmploymentFile] = useState<File | null>(null);
   const [policyFile, setPolicyFile] = useState<File | null>(null);
 
   const PRE_EMPLOYEMENT_SIG_URL = 'https://www.sejda.com/sign-pdf?files=[%7B%22downloadUrl%22%3A%22https%3A%2F%2Fdrive.google.com%2Fuc%3Fexport%3Ddownload%26id%3D1GHeJTZPXcIdZkMg8X0DaV9O4adqA-H5c%22%7D]';
   const POLICY_SIG_URL = 'https://www.sejda.com/sign-pdf?files=[%7B%22downloadUrl%22%3A%22https%3A%2F%2Fdrive.google.com%2Fuc%3Fexport%3Ddownload%26id%3D1moSDwjV9A4UJngeGBJGTfQbFmiMlgXMl%22%7D]';
 
-  // Simulated state - Defaulting to rejection state for preview
+  // Simulated state based on selection
   const mockEmail = 'delosreyesjr09@gmail.com';
-  const mockAdminFeedback = 'Please ensure the Pre-Employment and Policy Acknowledged Form is signed in all required fields.';
-  const mockPreFeedback = 'Signature missing on page 2.';
-  const mockPolicyFeedback = ''; // No feedback for policy
-  const hasAdminFeedback = true;
-  const showResubmit = true;
+  const mockAdminFeedback = status === 'revision' ? 'Please ensure the Pre-Employment and Policy Acknowledged Form is signed in all required fields.' : null;
+  const mockPreFeedback = status === 'revision' ? 'Signature missing on page 2.' : null;
+  const mockPolicyFeedback = null;
+  const hasAdminFeedback = !!mockAdminFeedback;
+  const showResubmit = status === 'revision';
+  const isPending = status === 'pending';
+  const isApproved = status === 'approved';
 
   const handleFileSelect = (type: 'pre' | 'policy') => {
     const input = document.createElement('input');
@@ -62,6 +65,20 @@ export default function DevMode() {
               <FileText className="w-3 h-3" />
               applicant
             </span>
+            <div className="flex bg-muted/50 p-1 rounded-lg border border-border">
+              {(['normal', 'pending', 'revision', 'approved'] as const).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setStatus(s)}
+                  className={`px-3 py-1 text-[10px] uppercase tracking-wider font-bold rounded-md transition-all ${status === s
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <DarkModeToggle />
@@ -79,9 +96,27 @@ export default function DevMode() {
       <main className="container mx-auto px-4 py-8 max-w-3xl">
         {/* Title */}
         <div className="mb-6 text-center md:text-left">
-          <h2 className="text-3xl font-heading font-bold">Applicant Dashboard</h2>
+          <h2 className="text-3xl font-heading font-bold text-foreground">Applicant Dashboard</h2>
           <p className="text-muted-foreground mt-1">Complete your onboarding requirements</p>
         </div>
+
+        {/* Status Alerts */}
+        {isApproved && (
+          <div className="mb-6 p-4 rounded-lg border border-emerald-500/50 bg-emerald-500/10 flex items-center gap-3 shadow-sm animate-in zoom-in-95 duration-500">
+            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            <div>
+              <p className="text-sm font-bold text-emerald-500 font-heading">Approval Confirmed!</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Your application has been accepted. Welcome to the workspace!</p>
+            </div>
+          </div>
+        )}
+
+        {isPending && (
+          <div className="mb-6 p-4 rounded-lg border border-primary/50 bg-primary/10 flex items-center gap-3 shadow-sm">
+            <Loader2 className="w-5 h-5 text-primary animate-spin" />
+            <p className="text-sm font-medium text-primary">Your documents are currently pending review.</p>
+          </div>
+        )}
 
         {/* Admin Feedback Banner */}
         {hasAdminFeedback && (

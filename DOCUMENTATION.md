@@ -84,6 +84,10 @@ Admin Dashboard Enhancement with Approval/Rejection Tracking and Auto-Delete.
 - Approval tracking columns: approved_at, approved_by, rejected_at, rejected_by
 - Delete button in Admin Dashboard to remove PDF files from storage + user account from Auth
 - Auto-delete Edge Function ("delete-old-records") for removing records older than 45 days
+- **Team tab in Admin Dashboard - invite and manage Admins and HR Employees**
+- **HR Employee role with view-only access (cannot Approve/Reject/Delete)**
+- **Permission controls - action buttons hidden for non-admin users**
+- **Last admin deletion protection**
 
 **Database Changes:**
 - Added columns to applicants table: approved_at, rejected_at, approved_by, rejected_by

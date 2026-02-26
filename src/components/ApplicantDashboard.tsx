@@ -1,7 +1,20 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { FileText, Upload, AlertCircle, X, Download, Loader2 } from 'lucide-react';
+import {
+  Loader2,
+  Upload,
+  FileText,
+  CheckCircle2,
+  AlertCircle,
+  Download,
+  X,
+  Eye,
+  ExternalLink
+} from 'lucide-react';
+import { Button } from './ui/button';
+import { Label } from './ui/label';
+import { Input } from './ui/input';
 import { toast } from 'sonner';
 
 interface ApplicantRecord {
@@ -14,6 +27,10 @@ interface ApplicantRecord {
   admin_comment: string | null;
   pre_employment_feedback: string | null;
   policy_rules_feedback: string | null;
+  approved_at: string | null;
+  approved_by: string | null;
+  rejected_at: string | null;
+  rejected_by: string | null;
 }
 
 const PRE_EMPLOYMENT_TEMPLATE = 'https://drive.google.com/uc?export=download&id=1GHeJTZPXcIdZkMg8X0DaV9O4adqA-H5c';
@@ -21,6 +38,10 @@ const POLICY_TEMPLATE = 'https://drive.google.com/uc?export=download&id=1moSDwjV
 
 const getSejdaUrl = (fileUrl: string) => {
   return `https://www.sejda.com/sign-pdf?files=[${JSON.stringify({ downloadUrl: fileUrl })}]`;
+};
+
+const handleViewPdf = (url: string | null) => {
+  if (url) window.open(url, '_blank');
 };
 
 export default function ApplicantDashboard() {
@@ -31,12 +52,34 @@ export default function ApplicantDashboard() {
   const [applicant, setApplicant] = useState<ApplicantRecord | null>(null);
   const [preEmploymentFile, setPreEmploymentFile] = useState<File | null>(null);
   const [policyFile, setPolicyFile] = useState<File | null>(null);
+  const [userFullName, setUserFullName] = useState<string>('');
 
   useEffect(() => {
     if (user) {
       fetchApplicantRecord();
+      fetchUserProfile();
     }
   }, [user]);
+
+  const fetchUserProfile = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (data?.full_name) {
+        setUserFullName(data.full_name);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  const sanitizeFileName = (name: string): string => {
+    return name.replace(/[^a-zA-Z0-9]/g, '_').toUpperCase();
+  };
 
   const fetchApplicantRecord = async () => {
     if (!user) return;
@@ -88,10 +131,11 @@ export default function ApplicantDashboard() {
     }
   };
 
-  const uploadFile = async (file: File, fileName: string): Promise<string | null> => {
+  const uploadFile = async (file: File, fileName: string, useName: boolean = false): Promise<string | null> => {
     if (!user) return null;
 
-    const filePath = `${user.id}/${Date.now()}_${fileName}`;
+    const sanitizedName = useName && userFullName ? `${sanitizeFileName(userFullName)}-${fileName}` : fileName;
+    const filePath = `${user.id}/${sanitizedName}`;
 
     try {
       const { error: uploadError } = await supabase.storage
@@ -116,8 +160,8 @@ export default function ApplicantDashboard() {
 
     setSubmitting(true);
     try {
-      const preUrl = await uploadFile(preEmploymentFile, 'pre-employment.pdf');
-      const policyUrl = await uploadFile(policyFile, 'policy-rules.pdf');
+      const preUrl = await uploadFile(preEmploymentFile, 'pre-employment.pdf', true);
+      const policyUrl = await uploadFile(policyFile, 'policy-rules.pdf', true);
 
       if (!preUrl || !policyUrl) {
         toast.error('Failed to upload files. Please try again.');
@@ -160,12 +204,12 @@ export default function ApplicantDashboard() {
       };
 
       if (preEmploymentFile) {
-        const url = await uploadFile(preEmploymentFile, 'pre-employment.pdf');
+        const url = await uploadFile(preEmploymentFile, 'pre-employment.pdf', true);
         if (url) updates.pre_employment_url = url;
       }
 
       if (policyFile) {
-        const url = await uploadFile(policyFile, 'policy-rules.pdf');
+        const url = await uploadFile(policyFile, 'policy-rules.pdf', true);
         if (url) updates.policy_rules_url = url;
       }
 
@@ -247,15 +291,28 @@ export default function ApplicantDashboard() {
             <h3 className="font-semibold text-lg leading-none font-heading">Pre-Employment Form</h3>
           </div>
 
-          <a
-            href={getSejdaUrl(applicant?.pre_employment_url || PRE_EMPLOYMENT_TEMPLATE)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 mb-4 w-fit"
-          >
-            <Download className="w-3 h-3" />
-            Sign Online: Pre-Employment.pdf
-          </a>
+          <div className="space-y-3 mb-4">
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground font-bold">Pre-Employment PDF</Label>
+            <Button
+              variant="outline"
+              className="w-full justify-start border-border/50 bg-background hover:bg-muted"
+              onClick={() => handleViewPdf(applicant?.pre_employment_url)}
+              disabled={!applicant?.pre_employment_url}
+            >
+              <Eye className="w-4 h-4 mr-2 text-primary" />
+              Open Document
+            </Button>
+
+            <a
+              href={getSejdaUrl(applicant?.pre_employment_url || PRE_EMPLOYMENT_TEMPLATE)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 w-fit"
+            >
+              <Download className="w-3 h-3" />
+              Sign Online: Pre-Employment.pdf
+            </a>
+          </div>
 
           <div
             onDrop={handleDrop('pre')}
@@ -314,15 +371,28 @@ export default function ApplicantDashboard() {
             <h3 className="font-semibold text-lg leading-none font-heading">Policy Acknowledgement Form</h3>
           </div>
 
-          <a
-            href={getSejdaUrl(applicant?.policy_rules_url || POLICY_TEMPLATE)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 mb-4 w-fit"
-          >
-            <Download className="w-3 h-3" />
-            Sign Online: Policy_Acknowledgement.pdf
-          </a>
+          <div className="space-y-3 mb-4">
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground font-bold">Policy Rules PDF</Label>
+            <Button
+              variant="outline"
+              className="w-full justify-start border-border/50 bg-background hover:bg-muted"
+              onClick={() => handleViewPdf(applicant?.policy_rules_url)}
+              disabled={!applicant?.policy_rules_url}
+            >
+              <Eye className="w-4 h-4 mr-2 text-primary" />
+              Open Document
+            </Button>
+
+            <a
+              href={getSejdaUrl(applicant?.policy_rules_url || POLICY_TEMPLATE)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 w-fit"
+            >
+              <Download className="w-3 h-3" />
+              Sign Online: Policy_Acknowledgement.pdf
+            </a>
+          </div>
 
           <div
             onDrop={handleDrop('policy')}

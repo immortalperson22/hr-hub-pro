@@ -74,6 +74,7 @@ Notes: [Any additional info]
 | 2026-02-26 | Archived Tab | Shows approved + rejected | New tab in Admin Dashboard |
 | 2026-02-26 | Delete Button | Deletes PDFs + User account | Manual admin control |
 | 2026-02-26 | Auto-Delete Function | 45-day cleanup Edge Function | delete-old-records |
+| 2026-02-26 | Team Management | Added Team tab + Invite functionality | Admins can create HR/Admin users |
 
 ---
 
@@ -167,6 +168,15 @@ Notes: [Any additional info]
 - Deletes PDFs from storage and removes user accounts
 - Can be triggered via cron job or manual invocation
 **Result:** ✅ Auto-delete function ready (needs cron setup)
+
+### Topic 7: Team Management Feature (HR Employee Role)
+**Issue:** Need to create HR employees who can only view applicants (no approval powers).
+**Actions:**
+- Created Team tab in AdminDashboard (Admins only)
+- Added invite functionality to create new Admin or HR Employee accounts
+- HR Employees can view Pending and Archived tabs but cannot Approve/Reject/Delete
+- Added protection against deleting last admin and self-deletion
+**Result:** ✅ Complete team management with role-based permissions
 
 ### Topic 1: Smart Resubmit Logic
 **Issue:** Applicants had to restart from blank templates when a revision was requested.
@@ -386,18 +396,14 @@ ls -la /home/JerutaX/Downloads/hr-hub-pro-main/dist/
 - Real-Time Role Switching & Celebration (Added Feb 24)
 - Admin Review Workflow Polish (Added Feb 24)
 - DevMode State Switcher (Added Feb 24)
-- **Email Notifications with "Sagility" branding (Added Feb 26)**
-- **PDF naming with applicant name (Added Feb 26)**
-- **Reject button + Archived tab (Added Feb 26)**
-- **Approval/Rejection tracking (Added Feb 26)**
-- **Delete button for manual cleanup (Added Feb 26)**
-- **Auto-delete function for 45-day cleanup (Added Feb 26)**
-
-### What's Missing/In Progress:
-- Test Delete button functionality
-- Test Archived tab
-- Set up cron job for auto-delete function
-- Production build stability testing
+- Email Notifications with "Sagility" branding (Added Feb 26)
+- PDF naming with applicant name (Added Feb 26)
+- Reject button + Archived tab (Added Feb 26)
+- Approval/Rejection tracking (Added Feb 26)
+- Delete button for manual cleanup (Added Feb 26)
+- Auto-delete function for 45-day cleanup (Added Feb 26)
+- **Team Management - invite Admins and HR Employees (Added Feb 26)**
+- **Role-based permissions - HR view-only (Added Feb 26)**
 
 ### Known Issues:
 - VM crashes when running dev server + Firefox + VS Code simultaneously
@@ -418,9 +424,10 @@ ls -la /home/JerutaX/Downloads/hr-hub-pro-main/dist/
 
 | Priority | Action | Status | Date |
 |----------|--------|--------|------|
-| High | Test Delete button functionality | Pending | 2026-02-26 |
-| High | Test Archived tab | Pending | 2026-02-26 |
-| High | Set up cron job for auto-delete | Pending | 2026-02-26 |
+| High | Test Team tab (invite member) | Pending | 2026-02-26 |
+| High | Test HR employee view-only access | Pending | 2026-02-26 |
+| High | Test last admin deletion protection | Pending | 2026-02-26 |
+| Medium | Set up cron job for auto-delete | Pending | - |
 | Medium | Test production build for stability | Pending | - |
 | Low | Optimize VM settings | Optional | - |
 
