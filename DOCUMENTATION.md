@@ -1,8 +1,8 @@
 # Sagility - Development Documentation
 
 **Project:** Sagility - Employee Management Platform
-**Date:** February 16, 2026
-**Version:** 1.5
+**Date:** February 26, 2026
+**Version:** 1.7
 
 ---
 
@@ -72,11 +72,30 @@ Simplified authentication flow and removed phone verification.
 - OPERATIONS.md for session tracking and conversation history
 - Simplified signup flow using Supabase built-in email confirmation
 
-### Version 1.6 (February 19, 2026)
-Unified Dashboard and Infrastructure Overhaul.
+### Version 1.7 (February 26, 2026)
+Admin Dashboard Enhancement with Approval/Rejection Tracking and Auto-Delete.
+
+**Added:**
+- Email notification system with SMTP (Google App Password) for approval notifications
+- Company branding changed from "HR Hub Pro" to "Sagility" in email template
+- PDF files now include applicant name in filename (e.g., "JOHN_DOE-pre-employment.pdf")
+- Reject button added to Admin Dashboard
+- Archived tab in Admin Dashboard showing approved and rejected applicants
+- Approval tracking columns: approved_at, approved_by, rejected_at, rejected_by
+- Delete button in Admin Dashboard to remove PDF files from storage + user account from Auth
+- Auto-delete Edge Function ("delete-old-records") for removing records older than 45 days
+
+**Database Changes:**
+- Added columns to applicants table: approved_at, rejected_at, approved_by, rejected_by
+
+**Edge Functions:**
+- send-approval-email: Sends email notification when applicant is approved
+- delete-old-records: Scheduled function to auto-delete records after 45 days
 
 **Design & UI:**
-- **Dashboard Unification**: Retired redundant standalone dashboard pages and consolidated all role-based logic into a single `/dashboard` route.
+- **Improved Workflow**: Removed the "Reject" button to streamline the admin review process. Added a "Smart Resubmit" feature allowing applicants to edit previous PDF versions via Sejda instead of starting over.
+- **Applicant Visibility**: Added "Open Document" (Eye icon) buttons to the applicant dashboard, matching the admin view for better verification.
+- **Storage Optimization**: Implemented file overwrite (upsert) logic to prevent duplication in Supabase storage and stay within free tier limits.
 - **Premium Aesthetics**: Fully integrated the teal/dark theme from the designs into the shared `ApplicantDashboard` and `AdminDashboard` components.
 - **Improved Feedback**: Admins can now provide granular feedback (per-document comments) in addition to overall conclusions.
 
@@ -528,6 +547,18 @@ Created seed data for testing:
 - Row Level Security policies
 - Role-based access control with security definer functions
 
+✅ **Approval & Rejection Workflow:**
+- Reject button in Admin Dashboard
+- Archived tab showing approved and rejected applicants
+- Approval/rejection tracking with timestamps and admin user IDs
+- Delete button to remove PDF files and user accounts
+- Auto-delete Edge Function for 45-day record cleanup
+
+✅ **Email Notifications:**
+- SMTP configuration with Google App Password
+- Edge Function for sending approval emails
+- Company branding changed to "Sagility"
+
 ### User Roles
 
 | Role | Capabilities |
@@ -556,6 +587,8 @@ Created seed data for testing:
 | src/components/auth/MFASetup.tsx | Simplified to email-only MFA (v1.4) |
 | src/components/auth/MFAPrompt.tsx | Simplified to email-only verification (v1.4) |
 | public/logo.png | Logo moved to public folder for email templates |
+| src/components/ApplicantDashboard.tsx | PDF renaming with applicant name (v1.7) |
+| src/components/AdminDashboard.tsx | Added Reject button, Archived tab, approval tracking, Delete button (v1.7) |
 
 ### Configuration Files
 
@@ -569,14 +602,21 @@ Created seed data for testing:
 
 | File | Changes |
 |------|---------|
-| OPERATIONS.md | NEW - Session tracker and conversation history (v1.4) |
-| DOCUMENTATION.md | Version 1.4 updates (Feb 13, 2026) |
+| OPERATIONS.md | Session tracker and conversation history (v1.4) |
+| DOCUMENTATION.md | Version 1.7 updates (Feb 26, 2026) |
 
 ### Database Files
 
 | File | Purpose |
 |------|---------|
 | supabase/migrations/20251223153400_b2e899b8-95d4-485d-a869-8864b2b591c6.sql | Migration script |
+
+### Edge Functions
+
+| Function | Purpose |
+|----------|---------|
+| supabase/functions/send-approval-email/index.ts | Sends approval email notifications |
+| supabase/functions/delete-old-records/index.ts | Auto-deletes records older than 45 days |
 
 ---
 

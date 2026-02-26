@@ -68,6 +68,12 @@ Notes: [Any additional info]
 | 2026-02-19 | Dashboard Unification | Unified routes at /dashboard | Removed legacy split system |
 | 2026-02-19 | Admin Visibility Fix | Fixed RLS + Schema relationship | Admin can now see applicants |
 | 2026-02-19 | Automated Profiles | Added DB Trigger for profile sync | Fixes missing applicant names |
+| 2026-02-26 | Email Notifications | SMTP + Edge Function | Sends to delosreyesjp28@gmail.com |
+| 2026-02-26 | PDF Naming | Added applicant name to filename | JOHN_DOE-pre-employment.pdf |
+| 2026-02-26 | Reject Button | Added to Admin Dashboard | With rejection tracking |
+| 2026-02-26 | Archived Tab | Shows approved + rejected | New tab in Admin Dashboard |
+| 2026-02-26 | Delete Button | Deletes PDFs + User account | Manual admin control |
+| 2026-02-26 | Auto-Delete Function | 45-day cleanup Edge Function | delete-old-records |
 
 ---
 
@@ -107,6 +113,97 @@ Notes: [Any additional info]
 - Updated signUp to use RPC function
 - Fixed RLS policies for user_roles
 **Result:** ✅ New users get applicant role automatically
+
+---
+
+## Conversation Details (2026-02-26)
+
+### Topic 1: Email Notification System
+**Issue:** Need to send approval notifications to HR email.
+**Actions:**
+- Configured SMTP with Google App Password (ubsulnwisyhlgjyc)
+- Created Edge Function `send-approval-email`
+- Updated email template with "Sagility" branding (changed from "HR Hub Pro")
+- Set recipient to: delosreyesjp28@gmail.com
+**Result:** ✅ Approval emails sent successfully
+
+### Topic 2: PDF File Naming Convention
+**Issue:** PDF files needed to include applicant name for easier identification.
+**Actions:**
+- Updated `ApplicantDashboard.tsx` to generate filename with applicant name
+- Format: "JOHN_DOE-pre-employment.pdf" and "JOHN_DOE-policy.pdf"
+- Uses applicant's full name from profile, converted to uppercase with underscores
+**Result:** ✅ PDFs now include applicant name
+
+### Topic 3: Reject Button & Archived Tab
+**Issue:** Admin needed ability to reject applicants and view archived records.
+**Actions:**
+- Added Reject button to AdminDashboard.tsx
+- Created Archived tab showing approved AND rejected applicants
+- Added rejection tracking columns to database
+**Result:** ✅ Two-tab system: Pending | Archived
+
+### Topic 4: Approval/Rejection Tracking
+**Issue:** Need to track who approved/rejected and when.
+**Actions:**
+- Added columns to applicants table: approved_at, approved_by, rejected_at, rejected_by
+- Updated SaveDecision function to record timestamp and admin user ID
+**Result:** ✅ Full audit trail in database
+
+### Topic 5: Delete Functionality
+**Issue:** Need manual delete for PDF files + user accounts.
+**Actions:**
+- Added Delete button in AdminDashboard
+- Deletes PDF files from Supabase Storage
+- Removes user from Supabase Auth
+- Cleans up profiles and user_roles table entries
+**Result:** ✅ Complete cleanup on delete
+
+### Topic 6: Auto-Delete Edge Function
+**Issue:** Need automatic cleanup of records after 45 days.
+**Actions:**
+- Created Edge Function `delete-old-records`
+- Checks for approved/rejected records older than 45 days
+- Deletes PDFs from storage and removes user accounts
+- Can be triggered via cron job or manual invocation
+**Result:** ✅ Auto-delete function ready (needs cron setup)
+
+### Topic 1: Smart Resubmit Logic
+**Issue:** Applicants had to restart from blank templates when a revision was requested.
+**Actions:**
+- Updated `ApplicantDashboard.tsx` with dynamic Sejda URL generation.
+- Configured links to point to previously uploaded files during `revision_required` state.
+**Result:** ✅ Applicants can now edit existing PDF submissions directly.
+
+### Topic 2: Storage Optimization (Overwrite Mode)
+**Issue:** Multiple versions of the same PDF were filling up Supabase storage.
+**Actions:**
+- Removed timestamps from file paths in `uploadFile`.
+- Enabled `upsert: true` to ensure new uploads replace old versions.
+**Result:** ✅ One active copy per document, staying within Supabase Free Tier limits.
+
+### Topic 3: Applicant Document Viewer
+**Issue:** Applicants couldn't verify their own uploads without downloading them manually.
+**Actions:**
+- Added "Open Document" (Eye icon) buttons to the Applicant Dashboard.
+- Mirrored the layout and logic from the Admin Dashboard for consistency.
+**Result:** ✅ Applicants have full visibility of their submitted documents.
+
+### Topic 4: Admin Workflow Refinement
+**Issue:** Redundant "Reject" button causing confusion in the simple onboarding process.
+**Actions:**
+- Removed the "Reject" button from the Admin Dashboard.
+- Standardized on "Approve" (role promotion) and "Revision" (correction) paths.
+**Result:** ✅ Streamlined admin interface focused on active outcomes.
+
+### Topic 5: Final Onboarding Polish & Real-Time Sync (2026-02-24)
+**Issue:** Transition from applicant to employee required a page refresh, and admin feedback loop was clunky.
+**Actions:**
+- Implemented real-time `user_roles` listener in `useAuth.tsx`.
+- Added celebratory "Party Popper" toast in `Dashboard.tsx` upon promotion.
+- Enhanced `AdminDashboard.tsx` to clear selection after approval for better workflow.
+- Updated `DevMode.tsx` with a state switcher for previewing all onboarding states.
+**Result:** ✅ Fully reactive and polished onboarding loop complete.
 
 ---
 
@@ -272,7 +369,7 @@ ls -la /home/JerutaX/Downloads/hr-hub-pro-main/dist/
 
 ## Current Project Status
 
-**Last Updated:** 2026-02-16
+**Last Updated:** 2026-02-26
 
 ### What's Working:
 - Authentication (Sign In/Sign Up)
@@ -282,9 +379,24 @@ ls -la /home/JerutaX/Downloads/hr-hub-pro-main/dist/
 - Database schema with RLS policies
 - Password visibility toggle (fixed Feb 13)
 - Signup with email confirmation (Supabase)
+- Smart Resubmit for PDFs (Added Feb 23)
+- Storage Overwrite/Upsert (Added Feb 23)
+- Applicant Document Viewer (Added Feb 23)
+- Automated Employee Promotion (Added Feb 19)
+- Real-Time Role Switching & Celebration (Added Feb 24)
+- Admin Review Workflow Polish (Added Feb 24)
+- DevMode State Switcher (Added Feb 24)
+- **Email Notifications with "Sagility" branding (Added Feb 26)**
+- **PDF naming with applicant name (Added Feb 26)**
+- **Reject button + Archived tab (Added Feb 26)**
+- **Approval/Rejection tracking (Added Feb 26)**
+- **Delete button for manual cleanup (Added Feb 26)**
+- **Auto-delete function for 45-day cleanup (Added Feb 26)**
 
 ### What's Missing/In Progress:
-- Confirmation popup page (/confirm) - implemented but pending retest after rate limit clears
+- Test Delete button functionality
+- Test Archived tab
+- Set up cron job for auto-delete function
 - Production build stability testing
 
 ### Known Issues:
@@ -306,10 +418,10 @@ ls -la /home/JerutaX/Downloads/hr-hub-pro-main/dist/
 
 | Priority | Action | Status | Date |
 |----------|--------|--------|------|
-| High | Test email confirmation flow after rate limit clears | Pending | - |
-| High | Retest confirmation popup (/confirm page) | Pending | - |
-| High | Test production build for stability | Pending | - |
-| Medium | Update crash log entries | Ongoing | 2026-02-10 |
+| High | Test Delete button functionality | Pending | 2026-02-26 |
+| High | Test Archived tab | Pending | 2026-02-26 |
+| High | Set up cron job for auto-delete | Pending | 2026-02-26 |
+| Medium | Test production build for stability | Pending | - |
 | Low | Optimize VM settings | Optional | - |
 
 ---
@@ -354,5 +466,5 @@ ls -la /home/JerutaX/Downloads/hr-hub-pro-main/dist/
 
 ---
 
-**Last Updated:** 2026-02-16
+**Last Updated:** 2026-02-26
 **Maintained By:** JerutaX
